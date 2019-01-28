@@ -15,6 +15,8 @@ class RechnungController:
         self.__rechnungDlg.setWohnungIdent(whg_short)
         if self.__rechnungDlg.exec_() > 0:
             self.__dataProvider.updateRechnung( rg )
+            return True
+        return False
 
     def newRechnung(self, whg_short, rg):
         self.__rechnungDlg = RechnungDlg(self, rg)

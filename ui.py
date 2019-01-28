@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import Qt, QDate
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QHBoxLayout
+from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QHBoxLayout, QDialogButtonBox
 from PyQt5 import uic
 
 
@@ -39,6 +39,9 @@ class MainWindow(QMainWindow):
     def onRechnungenFilterChanged(self):
         self.__controller.onRechnungenFilterChanged()
 
+    def onRechnungDataChanged(self):
+        pass  #todo
+
     def hideTableRechnungenRow(self, rows):
         for row in rows:
             self.tblRechnungen.hideRow(row)
@@ -67,6 +70,13 @@ class RechnungDlg( QDialog ):
         self.__rg = rg
         uic.loadUi("rechnung.ui", self)
         self.btnBox.layout().setDirection(QHBoxLayout.RightToLeft)
+        okbtn = self.btnBox.button(QDialogButtonBox.Ok)
+        okbtn.setAutoDefault(True)
+        okbtn.setDefault(True)
+        cbtn = self.btnBox.button(QDialogButtonBox.Cancel)
+        cbtn.setAutoDefault(False)
+        cbtn.setDefault(False)
+
         self.setAttribute(Qt.WA_DeleteOnClose)
         if rg:
             self.__data2View()
@@ -85,8 +95,8 @@ class RechnungDlg( QDialog ):
         rg = self.__rg
         rg['rg_nr'] = self.inRgNr.text()
         rg['rg_datum'] = self.inRgDatum.text()
-        rg['rg_betrag'] = self.inRgBetrag.text()
-        rg['rg_firma'] = self.inFirma.text()
+        rg['betrag'] = self.inRgBetrag.text()
+        rg['firma'] = self.inFirma.text()
         rg['verteilung_jahre'] = str(self.spinRgVerteilung.value())
         rg['bemerkung'] = self.txtRgBemerk.document().toPlainText()
         rg['rg_bezahlt_am'] = self.inRgBezahltAm.text()

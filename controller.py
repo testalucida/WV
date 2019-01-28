@@ -105,7 +105,11 @@ class Controller():
         whg = self.__getSelectedWohnungTreeItem()
         shortIdent = self.__getWohnungIdentifikation( whg.id() )
 
-        self.__rechnungController.editRechnung(shortIdent, rg)
+        if self.__rechnungController.editRechnung(shortIdent, rg):
+            #force rechnungen table to refresh:
+            #self.__mainWindow.tblRechnungen.??? #todo
+            self.dumpRechnungenModel()
+            pass
         return
 
     def onTestClicked(self):
