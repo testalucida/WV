@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>976</width>
+    <height>734</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Wohnungsverwaltung</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="rightMargin">
+     <number>11</number>
+    </property>
+    <item row="4" column="2">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="2">
+     <widget class="QPushButton" name="btnRechnungen">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Rechnungen</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" rowspan="5">
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>600</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>417</width>
+         <height>660</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QTreeView" name="tvWohnungen">
+          <property name="font">
+           <font>
+            <pointsize>14</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item row="2" column="2">
+     <widget class="QPushButton" name="btnMiete">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Miete</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QPushButton" name="btnDetails">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Details</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2">
+     <widget class="QPushButton" name="btnMietverh">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>100</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Mietverhältnis</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1" rowspan="5">
+     <widget class="QScrollArea" name="scrollArea_2">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents_3">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>416</width>
+         <height>660</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QTableWidget" name="tableWidget"/>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_Neue_Wohnung"/>
+   <addaction name="actionNeuer_Verwalter"/>
+   <addaction name="actionAnlagen_V_erstellen"/>
+   <addaction name="actionJahresuebersicht"/>
+   <addaction name="separator"/>
+   <addaction name="action_Beenden"/>
+  </widget>
+  <action name="action_Beenden">
+   <property name="text">
+    <string>&amp;Beenden</string>
+   </property>
+  </action>
+  <action name="action_Neue_Wohnung">
+   <property name="text">
+    <string>&amp;Neue Wohnung...</string>
+   </property>
+  </action>
+  <action name="actionWohnung_l_schen">
+   <property name="text">
+    <string>Wohnung &amp;löschen</string>
+   </property>
+  </action>
+  <action name="actionNeuer_Verwalter">
+   <property name="text">
+    <string>Neuer &amp;Verwalter...</string>
+   </property>
+  </action>
+  <action name="actionAnlagen_V_erstellen">
+   <property name="text">
+    <string>Anlagen V erstellen...</string>
+   </property>
+  </action>
+  <action name="actionJahresuebersicht">
+   <property name="text">
+    <string>Jahresübersicht</string>
+   </property>
+   <property name="toolTip">
+    <string>Übersicht über die Einnahmen und Ausgaben des laufenden Jahres</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btnRechnungen</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onRechnungenClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>675</x>
+     <y>204</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>715</x>
+     <y>537</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDetails</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onDetailsClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>655</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>648</x>
+     <y>531</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnMiete</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onMieteClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>691</x>
+     <y>337</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>718</x>
+     <y>489</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnMietverh</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onMietverhaeltnisClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>708</x>
+     <y>413</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>721</x>
+     <y>465</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tvWohnungen</sender>
+   <signal>clicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onWohnungenTreeClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>596</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>652</x>
+     <y>615</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onRechnungenClicked()</slot>
+  <slot>onDetailsClicked()</slot>
+  <slot>onMieteClicked()</slot>
+  <slot>onMietverhaeltnisClicked()</slot>
+  <slot>onWohnungenTreeClicked()</slot>
+ </slots>
+</ui>
