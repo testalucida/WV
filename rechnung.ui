@@ -255,6 +255,17 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>inRgNr</tabstop>
+  <tabstop>inRgDatum</tabstop>
+  <tabstop>tbRgDatumCalendar</tabstop>
+  <tabstop>inRgBezahltAm</tabstop>
+  <tabstop>tbRgBezahltAmCalendar</tabstop>
+  <tabstop>inRgBetrag</tabstop>
+  <tabstop>spinRgVerteilung</tabstop>
+  <tabstop>inFirma</tabstop>
+  <tabstop>txtRgBemerk</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

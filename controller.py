@@ -81,9 +81,7 @@ class Controller():
             #iterate over all rows and check dates in column 'rg_datum'
             rows = []
             for r in range(rmax):
-                #rg_datum = model.item(r,c).userData()['rg_datum']
                 rg_bezahlt_am = model.item(r, c).userData()['rg_bezahlt_am']
-                #if not rg_datum.startswith( sel_item ):
                 if rg_bezahlt_am is not None and not rg_bezahlt_am.startswith(sel_item):
                     rows.append( r )
             self.__mainWindow.hideTableRechnungenRow( rows )
@@ -107,9 +105,9 @@ class Controller():
 
         if self.__rechnungController.editRechnung(shortIdent, rg):
             #force rechnungen table to refresh:
-            #self.__mainWindow.tblRechnungen.??? #todo
-            self.dumpRechnungenModel()
-            pass
+            rechnungen = self.__mainWindow.tblRechnungen.model()
+            rechnungen.changeRechnung(rg)
+
         return
 
     def onTestClicked(self):
@@ -230,7 +228,7 @@ class Controller():
         self.__mainWindow.tblRechnungen.setColumnHidden( 0, True )
 
         # TEST
-        self.dumpRechnungenModel()
+        #self.dumpRechnungenModel()
         # TEST
         #provide distinct years for filter purposes:
         s = set()

@@ -100,18 +100,38 @@ class WohnungenModel(QStandardItemModel):
             return QVariant()
 
 
-# class RechnungItem( QStandardItem ):
-#     __rg = None
-#
-#     def __init__(self, rg ):
-#         QStandardItem.__init__(self )
-#         self.__rg = rg
-#
-#     def rechnung(self):
-#         return self.__rg
-#
-#     def rg_id(self):
-#         return self.__rg['rg_id']
+class Rechnung(list):
+    #all rechnung data must be stored as list
+    #due to its use in a QStandardItemModel
+    def __init__(self, rg):
+        list.__init__()
+        self.__rechnung = rg
+        self.__id = rg['rg_id']
+        for key, value in rg.items():
+            item = RechnungItem(key, value)
+
+    def id(self):
+        return self.__id
+
+    def value(self, key):
+        return self.__rechnung[key]
+
+    def setValue(self, key, newValue):
+        self.__rechnung[key] = newValue
+
+
+class RechnungItem( QStandardItem ):
+
+    def __init__(self, key, value ):
+        QStandardItem.__init__(self, value )
+        self.__key = key
+        self.__value = value
+
+    def value(self):
+        return self.__value
+
+    def key(self):
+        return self.__key
 
 class CustomItem( QStandardItem ):
     __userData = None
@@ -129,7 +149,7 @@ class CustomItem( QStandardItem ):
 
 
 class RechnungenModel(QStandardItemModel):
-    __rg_list = None
+    #__rg_list = None
 
     def __init__(self, rg_list):
         QStandardItemModel.__init__(self)
@@ -155,6 +175,22 @@ class RechnungenModel(QStandardItemModel):
             for key, value in rg.items():
                 self.setHeaderData(i, Qt.Horizontal, key)
                 i += 1
+
+    def changeRechnung(self, rg):
+        #find row - each row is a rechnung is a list entry
+        rg_id = rg['rg_id']
+        r = 0
+        cmax = self.columnCount() - 1
+        for row in self.__rg_list:
+            if row['rg_id'] == rg_id:
+                for c in range(cmax):
+                    item = self.item(r, c)
+                    idx = self.index(r, c)
+                    self.setData(idx, 99.00)
+            r += 1
+
+
+        pass
 
     def columnId(self, colName):
         rg_dict = self.__rg_list[0]
