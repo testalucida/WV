@@ -6,9 +6,9 @@ import json
 from PyQt5.QtCore import Qt, QVariant
 #from PyQt5.QtWidgets import  QAbstractItemView
 #from ui import CalendarDlg
-from business import DataProvider
+from business import DataProvider, ServiceError, WriteRetVal
 from rechnungcontroller import RechnungController
-from models import WohnungenModel, WohnungItem, RechnungenModel
+from models import WohnungenModel, WohnungItem, RechnungenModel, Rechnung, RechnungItem
 
 
 class Controller():
@@ -33,24 +33,29 @@ class Controller():
     def onNewRechnungClicked(self):
         item = self.__getSelectedWohnungTreeItem()
         if type( item ) == WohnungItem:
-            self.__rechnungController.newRechnung()
+            whg_short_ident = self.__getWohnungIdentifikation( item.id())
+            newRechnung = Rechnung()
+            newRechnung.setValue('whg_id', item.id())
+            try:
+                self.__rechnungController.newRechnung(whg_short_ident, newRechnung)
+                self.__mainWindow.tblRechnungen.model().appendRow(newRechnung)
+            except ServiceError as err:
+                self.__mainWindow.showError(str(err.message()['rc']),
+                                            err.message()['msg'])
 
-    '''
-    onFilterRechnungenClicked: extract a list out of the years of 
-    the rechnung dates and use it for a filter dialog.
-    hide all rows in tblRechnungen not satisfying the selected 
-    year criterium 
-    '''
-    # def onFilterRechnungenClicked(self):
-    #     rg_list = self.__mainWindow.tblRechnungen.model().getRechnungen()
-    #     s = set()
-    #     for rg in rg_list:
-    #         s.add(rg['rg_datum'][:4])
-    #
-    #     s = sorted(s)
-    #
-    #
-    #     return
+    def onDeleteRechnungClicked(self):
+        rechnungItem = self.__getSelectedRechnungTableItem()
+        if type(rechnungItem) == RechnungItem:
+            rechnung = rechnungItem.rechnung()
+            rg_id = rechnung.id()
+            try:
+                retval = self.__dataProvider.deleteRechnung(rg_id)
+                self.__mainWindow.tblRechnungen.model().\
+                    removeRow(rechnungItem.index().row())
+            except ServiceError as err:
+                self.__mainWindow.showError(str(err.message()['rc']),
+                                            err.message()['msg'])
+
 
     '''
     a tree item has been selected.
@@ -81,7 +86,8 @@ class Controller():
             #iterate over all rows and check dates in column 'rg_datum'
             rows = []
             for r in range(rmax):
-                rg_bezahlt_am = model.item(r, c).userData()['rg_bezahlt_am']
+                #rg_bezahlt_am = model.item(r, c).userData()['rg_bezahlt_am']
+                rg_bezahlt_am = model.item(r, c).value('rg_bezahlt_am')
                 if rg_bezahlt_am is not None and not rg_bezahlt_am.startswith(sel_item):
                     rows.append( r )
             self.__mainWindow.hideTableRechnungenRow( rows )
@@ -97,16 +103,17 @@ class Controller():
     Open the Rechnung dialog for browsing or editing
     '''
     def onRechnungenTableDblClicked(self):
-        r = self.__getSelectedRechnungTableItem()
-        rg = r.userData()
-        #get Wohnung short identifikation:
-        whg = self.__getSelectedWohnungTreeItem()
-        shortIdent = self.__getWohnungIdentifikation( whg.id() )
+        rechnungItem = self.__getSelectedRechnungTableItem()
+        rechnung = rechnungItem.rechnung() #rechnung: list of RechnungItem
 
-        if self.__rechnungController.editRechnung(shortIdent, rg):
+        #get Wohnung short identifikation:
+        shortIdent = self.__getSelectedWohnungIdentifikation( )
+
+        if self.__rechnungController.editRechnung(shortIdent, rechnung):
             #force rechnungen table to refresh:
-            rechnungen = self.__mainWindow.tblRechnungen.model()
-            rechnungen.changeRechnung(rg)
+            #rechnungen = self.__mainWindow.tblRechnungen.model()
+            #rechnungen.changeRechnung(rg)
+            pass
 
         return
 
@@ -168,7 +175,7 @@ class Controller():
         indexes = self.__mainWindow.tblRechnungen.selectedIndexes()
         if len(indexes) > 0:
             index = self.__mainWindow.tblRechnungen.selectedIndexes()[0]
-            r = index.model().itemFromIndex(index)
+            r = index.model().itemFromIndex(index) #r is of  type RechnungItem
             return r
         return QVariant
 
@@ -243,6 +250,10 @@ class Controller():
             l.append( item )
         self.__mainWindow.cboRechnungenFilter.clear()
         self.__mainWindow.cboRechnungenFilter.addItems( l )
+
+    def __getSelectedWohnungIdentifikation(self):
+        whg = self.__getSelectedWohnungTreeItem()
+        return self.__getWohnungIdentifikation(whg.id())
 
     def __getWohnungIdentifikation(self, whg_id):
         resp = self.__dataProvider.getWohnungIdentifikation(whg_id)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import QVariant, Qt
+from PyQt5.QtCore import QVariant, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
 
 
@@ -50,7 +50,7 @@ class WohnungItem( QStandardItem ):
 
 
 class WohnungenModel(QStandardItemModel):
-    __whg_list = None
+    #__whg_list = None
 
     def __init__(self, whg_list):
         QStandardItemModel.__init__(self)
@@ -100,38 +100,78 @@ class WohnungenModel(QStandardItemModel):
             return QVariant()
 
 
-class Rechnung(list):
+class Rechnung(list): #list of RechnungItem
     #all rechnung data must be stored as list
     #due to its use in a QStandardItemModel
-    def __init__(self, rg):
-        list.__init__()
-        self.__rechnung = rg
-        self.__id = rg['rg_id']
-        for key, value in rg.items():
+    def __init__(self, rg_dict = None):
+        list.__init__(self)
+        if rg_dict is not None:
+            self.__rg_dict = rg_dict
+
+        else: #create empty rechnung dictionary
+            self.__rg_dict = {'whg_id': 0,
+           'rg_id': '0',
+           'rg_datum': '',
+           'rg_nr': '',
+           'betrag': '0',
+           'verteilung_jahre': '1',
+           'bemerkung': '',
+           'firma': '',
+           'rg_bezahlt_am': ''
+           }
+
+        for key, value in self.__rg_dict.items():
             item = RechnungItem(key, value)
+            item.setRechnung(self)
+            self.append(item)
+
+        self.__id = self.__rg_dict['rg_id']
 
     def id(self):
         return self.__id
 
     def value(self, key):
-        return self.__rechnung[key]
+        return self.__rg_dict[key]
 
     def setValue(self, key, newValue):
-        self.__rechnung[key] = newValue
+        #change __rg_dict - that's the master
+        self.__rg_dict[key] = newValue
+        #change corresponding RechnungItem in order to refresh
+        #TableView
+        for rechnungItem in self:
+            if rechnungItem.key() == key:
+                rechnungItem.setValue(newValue)
+
+    def rechnungDictionary(self):
+        return self.__rg_dict
 
 
 class RechnungItem( QStandardItem ):
+    #RechnungItem: one element of a Rechnung e.g. 'rg_datum'
+    changed = pyqtSignal(str, str)
 
     def __init__(self, key, value ):
         QStandardItem.__init__(self, value )
         self.__key = key
         self.__value = value
+        self.__rechnung = None
+
+    def setValue(self, newVal):
+        self.__value = newVal
+        self.setData( newVal, Qt.EditRole)
 
     def value(self):
         return self.__value
 
     def key(self):
         return self.__key
+
+    def setRechnung(self, rechnung):
+        self.__rechnung = rechnung
+
+    def rechnung(self):
+        return self.__rechnung
+
 
 class CustomItem( QStandardItem ):
     __userData = None
@@ -157,24 +197,30 @@ class RechnungenModel(QStandardItemModel):
         #create a list of QStandardItems for each row
         for rg in rg_list:
             #headers = False;
-            row = []
+            #row = []
+            row = Rechnung(rg)
 
-            for key, value in rg.items():
+            #for key, value in rg.items():
                 # if not headers:  ##this doesn't work if tableview contains only one row
                 #     self.setHeaderData( i, Qt.Horizontal, key )
                 #     i += 1
-                colVal = CustomItem( value )
-                colVal.setUserData( rg )
-                row.append(colVal)
-                #print( key, value )
+                #colVal = CustomItem( value )
+                #colVal.setUserData( rg )
+                #colVal = RechnungItem(key, value)
+                #colVal.setRechnung(row)
+                #row.append(colVal)
 
-            self.appendRow( row )
+            self.appendRow(row)
             #headers = True
 
             i = 0
             for key, value in rg.items():
                 self.setHeaderData(i, Qt.Horizontal, key)
                 i += 1
+
+    @pyqtSlot(str, str)
+    def onChanged(self, key, val):
+        print("changed!")
 
     def changeRechnung(self, rg):
         #find row - each row is a rechnung is a list entry
@@ -188,9 +234,6 @@ class RechnungenModel(QStandardItemModel):
                     idx = self.index(r, c)
                     self.setData(idx, 99.00)
             r += 1
-
-
-        pass
 
     def columnId(self, colName):
         rg_dict = self.__rg_list[0]

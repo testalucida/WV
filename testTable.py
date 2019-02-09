@@ -14,6 +14,14 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         uic.loadUi("testTable.ui", self)
 
+    def onBtnClicked(self):
+        print("Click")
+        model = self.tv.model()
+        idx = model.index(0,0)
+        item = model.item(0,0)
+        #model.setData(idx, 'bla')
+        item.setData('bla', Qt.EditRole)
+
 class TableModel(QStandardItemModel ):
     def __init__(self):
         QStandardItemModel.__init__(self)

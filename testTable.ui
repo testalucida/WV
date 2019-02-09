@@ -18,10 +18,37 @@
     <item row="0" column="0">
      <widget class="QTableView" name="tv"/>
     </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="btn">
+      <property name="text">
+       <string>PushButton</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>btn</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onBtnClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>645</x>
+     <y>560</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>782</x>
+     <y>576</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>onBtnClicked()</slot>
+ </slots>
 </ui>

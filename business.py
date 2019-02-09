@@ -23,6 +23,32 @@ import json
 #     r = s.get('http://localhost/kendelweb/dev/php/business.php?q=uebersicht_wohnungen&user=martin' )
 #     return r
 
+class ServiceError(Exception):
+    def __init__(self, rc, msg):
+        Exception.__init__(self)
+        self.__rc = rc
+        self.__msg = msg
+
+    def message(self):
+        dic = {'rc': self.__rc, 'msg': self.__msg }
+        return dic
+
+
+class WriteRetVal:
+    def __init__(self, rc, obj_id):
+        self.__rc = rc
+        self.__obj_id = obj_id
+        #self.__msg = msg
+
+    def rc(self):
+        return self.__rc
+
+    # def message(self):
+    #     return self.__msg
+
+    def object_id(self):
+        return self.__obj_id
+
 
 class DataProvider:
 
@@ -60,11 +86,55 @@ class DataProvider:
                 str( whg_id ) + '&user=' + self.__user)
         return resp
 
-    def updateRechnung(self, rg):
+    def updateRechnung(self, rg_dict):
         resp = self.__session. \
-            post('http://localhost/kendelweb/dev/php/business.php?q=update_rechnung&user=' + self.__user, data=rg)
-        return resp
+            post('http://localhost/kendelweb/dev/php/business.php?q=update_rechnung&user=' + self.__user, data=rg_dict)
 
+        retval = self.__getWriteRetVal(resp)
+        if type(retval) == ServiceError:
+            raise retval
+        else:
+            return retval
+
+    '''
+    insert new rechnung
+    '''
+    def insertRechnung(self, rg_dict):
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=insert_rechnung&user=' + self.__user, data=rg_dict)
+
+        retval = self.__getWriteRetVal(resp)
+        if type(retval) == ServiceError:
+            raise retval
+        else:
+            return retval
+
+    '''
+    delete rechnung
+    '''
+    def deleteRechnung(self, rg_id):
+        delData = {}
+        delData['rg_id'] = str(rg_id)
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=delete_rechnung&user=' + self.__user, data=delData)
+
+        retval = self.__getWriteRetVal(resp)
+        if type(retval) == ServiceError:
+            raise retval
+        else:
+            return retval
+
+    def __getWriteRetVal(self, resp):
+        if resp.status_code != 200:
+            serviceError = ServiceError( resp.status_code, resp.text )
+            return serviceError
+        else:
+            dic = json.loads(resp.content)
+            if dic['rc'] == 0:
+                return WriteRetVal(dic['rc'], dic['obj_id'])
+            else:
+                serviceError = ServiceError(dic['rc'], resp.text)
+                return serviceError
 
 
 ######### For testing purposes only ########################

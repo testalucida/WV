@@ -4,7 +4,7 @@
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QHBoxLayout, QDialogButtonBox
 from PyQt5 import uic
-
+from models import Rechnung, RechnungItem
 
 class MainWindow(QMainWindow):
     __controller = None
@@ -26,6 +26,9 @@ class MainWindow(QMainWindow):
     def onNewRechnungClicked( self ):
         #print( "onNewRechnungClicked" )
         self.__controller.onNewRechnungClicked()
+
+    def onDeleteRechnungClicked(self):
+        self.__controller.onDeleteRechnungClicked()
 
     def onRechnungenRowDblClicked( self ):
         self.__controller.onRechnungenTableDblClicked()
@@ -64,10 +67,10 @@ class MainWindow(QMainWindow):
 
 class RechnungDlg( QDialog ):
 
-    def __init__(self, controller, rg = None):
+    def __init__(self, controller, rechnung = None): #rechnung: type of Rechnung
         super(RechnungDlg, self).__init__()
         self.__controller = controller
-        self.__rg = rg
+        self.__rechnung = rechnung #type of Rechnung (list of RechnungItems)
         uic.loadUi("rechnung.ui", self)
         self.btnBox.layout().setDirection(QHBoxLayout.RightToLeft)
         okbtn = self.btnBox.button(QDialogButtonBox.Ok)
@@ -78,28 +81,28 @@ class RechnungDlg( QDialog ):
         cbtn.setDefault(False)
 
         self.setAttribute(Qt.WA_DeleteOnClose)
-        if rg:
+        if rechnung:
             self.__data2View()
 
     def __data2View(self):
-        self.lblRgId.setText( self.__rg['rg_id'])
-        self.inRgNr.setText( self.__rg['rg_nr'] )
-        self.inRgDatum.setText(self.__rg['rg_datum'])
-        self.inRgBetrag.setText(self.__rg['betrag'])
-        self.inFirma.setText(self.__rg['firma'])
-        self.spinRgVerteilung.setValue( int( self.__rg['verteilung_jahre'] ) )
-        self.txtRgBemerk.setPlainText(self.__rg['bemerkung'])
-        self.inRgBezahltAm.setText( self.__rg['rg_bezahlt_am'])
+        self.lblRgId.setText( self.__rechnung.value('rg_id'))
+        self.inRgNr.setText( self.__rechnung.value('rg_nr') )
+        self.inRgDatum.setText(self.__rechnung.value('rg_datum'))
+        self.inRgBetrag.setText(self.__rechnung.value('betrag'))
+        self.inFirma.setText(self.__rechnung.value('firma'))
+        self.spinRgVerteilung.setValue( int( self.__rechnung.value('verteilung_jahre') ) )
+        self.txtRgBemerk.setPlainText(self.__rechnung.value('bemerkung'))
+        self.inRgBezahltAm.setText( self.__rechnung.value('rg_bezahlt_am'))
 
     def __view2Data(self):
-        rg = self.__rg
-        rg['rg_nr'] = self.inRgNr.text()
-        rg['rg_datum'] = self.inRgDatum.text()
-        rg['betrag'] = self.inRgBetrag.text()
-        rg['firma'] = self.inFirma.text()
-        rg['verteilung_jahre'] = str(self.spinRgVerteilung.value())
-        rg['bemerkung'] = self.txtRgBemerk.document().toPlainText()
-        rg['rg_bezahlt_am'] = self.inRgBezahltAm.text()
+        rg = self.__rechnung
+        rg.setValue('rg_nr', self.inRgNr.text())
+        rg.setValue('rg_datum', self.inRgDatum.text())
+        rg.setValue('betrag', self.inRgBetrag.text())
+        rg.setValue('firma', self.inFirma.text())
+        rg.setValue('verteilung_jahre', str(self.spinRgVerteilung.value()))
+        rg.setValue('bemerkung', self.txtRgBemerk.document().toPlainText())
+        rg.setValue('rg_bezahlt_am', self.inRgBezahltAm.text())
 
     def setWohnungIdent(self, ident ):
         self.lblWohnung.setText( ident )
