@@ -8,22 +8,26 @@ from PyQt5.QtCore import Qt, QVariant
 #from ui import CalendarDlg
 from business import DataProvider, ServiceError, WriteRetVal
 from rechnungcontroller import RechnungController
-from models import WohnungenModel, WohnungItem, RechnungenModel, Rechnung, RechnungItem
+from mietecontroller import MieteController
+from models import WohnungenModel, WohnungItem, RechnungenModel, Rechnung, RechnungItem, DictListTableModel
 
 
 class Controller():
-    __dataProvider = None
-    __mainWindow = None
-    __rechnungController = None
+    # __dataProvider = None
+    # __mainWindow = None
+    # __rechnungController = None
     #__rechnungDlg = None
 
     def __init__(self, mainWindow):
         self.__mainWindow = mainWindow
         self.__dataProvider = DataProvider()
+        self.__rechnungController = None
+        self.__mieteController = None
 
     def initialize(self):
         self.__dataProvider.connect('martin', 'fuenf55') #TODO: login dialog
         self.__rechnungController = RechnungController( self.__dataProvider )
+        self.__mieteController = MieteController(self.__dataProvider)
         resp = self.__dataProvider.getWohnungsUebersicht()
         whg_list = json.loads( resp.content )
         whg_model = WohnungenModel(whg_list)
@@ -65,8 +69,16 @@ class Controller():
         item = self.__getSelectedWohnungTreeItem()
         #self.__enableButtons( type( item ) == WohnungItem )
         if type( item ) == WohnungItem:
+            #provide data for wohnung details:
             self.__provideDetails( item )
+            #provide data for rechnungen:
             self.__provideRechnungen( item )
+            #provide data for miete tab:
+            self.__provideMieteData( item )
+            #todo: provide data for other tabs:
+            # 2. provide data for hausgeld tab
+            # 3. provide data for sonstige ein-/auszahlungen tab
+            # 4. provide data for mieter tab
 
     '''
     on Rechnungen tab a year filter was set.
@@ -96,8 +108,6 @@ class Controller():
 
             return
 
-
-
     '''
     a row in tblRechnungen has been double clicked. 
     Open the Rechnung dialog for browsing or editing
@@ -119,6 +129,20 @@ class Controller():
 
     def onTestClicked(self):
         self.dumpRechnungenModel()
+
+    '''
+     a row in tblMieten has been double clicked. 
+     Open the Miete dialog for browsing or editing
+     '''
+    def onMietenTableDblClicked(self):
+        # get Wohnung short identifikation:
+        shortIdent = self.__getSelectedWohnungIdentifikation()
+        selRow = self.__getSelectedRow(self.__mainWindow.tblMieten)
+        if not selRow is type(QVariant):
+            if self.__mieteController.editMiete(shortIdent, selRow):
+                pass
+
+        return
 
     def dumpRechnungenModel(self):
         model = self.__mainWindow.tblRechnungen.model()
@@ -160,6 +184,14 @@ class Controller():
         self.__rglistData2Ui(rg_list)
 
     '''
+    provides data for the miete tab (both latest and former data)
+    '''
+    def __provideMieteData(self, whg_item ):
+        resp = self.__dataProvider.getMieteData( whg_item.id() )
+        miete_data = json.loads( resp.content )
+        self.__mieteData2Ui( miete_data )
+
+    '''
     returns the selected tree item in tvWohnungen
     '''
     def __getSelectedWohnungTreeItem(self):
@@ -177,6 +209,17 @@ class Controller():
             index = self.__mainWindow.tblRechnungen.selectedIndexes()[0]
             r = index.model().itemFromIndex(index) #r is of  type RechnungItem
             return r
+        return QVariant
+
+    '''
+    returns the selectedRow of the given QTableView
+    '''
+    def __getSelectedRow(self, tableView):
+        indexes = self.__mainWindow.tblMieten.selectedIndexes()
+        if len(indexes) > 0:
+            index = indexes[0]
+            selRow = index.model().itemFromIndex(index).dictTableRow()
+            return selRow
         return QVariant
 
     def __whgData2Ui(self, details ):
@@ -228,11 +271,12 @@ class Controller():
         self.__mainWindow.txtBemerk.setPlainText(details['bemerkung'])
 
     def __rglistData2Ui(self, rg_list ):
+        win = self.__mainWindow
         rechnungen = RechnungenModel( rg_list )
-        self.__mainWindow.tblRechnungen.setModel( rechnungen )
-        self.__mainWindow.tblRechnungen.resizeColumnsToContents()
+        win.tblRechnungen.setModel( rechnungen )
+        win.tblRechnungen.resizeColumnsToContents()
         #hide rechnung id:
-        self.__mainWindow.tblRechnungen.setColumnHidden( 0, True )
+        win.tblRechnungen.setColumnHidden( 0, True )
 
         # TEST
         #self.dumpRechnungenModel()
@@ -248,8 +292,24 @@ class Controller():
         l.append( "Kein Jahresfilter" )
         for item in s:
             l.append( item )
-        self.__mainWindow.cboRechnungenFilter.clear()
-        self.__mainWindow.cboRechnungenFilter.addItems( l )
+        win.cboRechnungenFilter.clear()
+        win.cboRechnungenFilter.addItems( l )
+
+    def __mieteData2Ui(self, miete_data ):
+        win = self.__mainWindow
+        model = DictListTableModel(miete_data)
+        win.tblMieten.setModel(model)
+        #hide columns whg_id and miete_id:
+        win.tblMieten.setColumnWidth(0, 0)
+        win.tblMieten.setColumnWidth(1, 0)
+
+        # latest_miete_dic = miete_data[0]
+        # win.inNettoMiete.setText(latest_miete_dic['netto_miete'])
+        # win.inNkAbschlag.setText(latest_miete_dic['nk_abschlag'])
+        # win.inMieteGueltigAb.setText(latest_miete_dic['gueltig_ab'])
+        # #win.inMieteGueltigBis.setText(latest_miete_dic['gueltig_bis'])
+        # win.txtMieteBemerkung.setPlainText(latest_miete_dic['bemerkung'])
+        # win.lblMieteId.setText(latest_miete_dic['miete_id'])
 
     def __getSelectedWohnungIdentifikation(self):
         whg = self.__getSelectedWohnungTreeItem()

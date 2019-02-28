@@ -51,7 +51,7 @@
            <string notr="true"/>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="tabDetails">
            <attribute name="title">
@@ -511,8 +511,60 @@
             <string>Miete</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="8" column="1">
-             <spacer name="verticalSpacer">
+            <item row="1" column="1">
+             <widget class="QPushButton" name="btnEditMiete">
+              <property name="text">
+               <string>Mietsatz ändern...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="btnNewMiete">
+              <property name="text">
+               <string>Neuer Mietsatz...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QPushButton" name="btnMieteDelete">
+              <property name="text">
+               <string>Mietsatz löschen</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="3">
+             <widget class="QTableView" name="tblMieten"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabHausgeld">
+           <attribute name="title">
+            <string>Hausgeld</string>
+           </attribute>
+           <layout class="QGridLayout" name="gridLayout_6">
+            <item row="3" column="2">
+             <widget class="QToolButton" name="tbHausgeldGueltigAb">
+              <property name="text">
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Historie </string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Gültig ab </string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <spacer name="verticalSpacer_4">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -525,7 +577,7 @@
              </spacer>
             </item>
             <item row="1" column="1">
-             <widget class="QLineEdit" name="inNettoMiete">
+             <widget class="QLineEdit" name="inHausgeldAbschlag">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -534,11 +586,38 @@
               </property>
              </widget>
             </item>
-            <item row="7" column="1" colspan="4">
-             <widget class="QTableWidget" name="tblMieteHistorie"/>
+            <item row="1" column="5">
+             <widget class="QLineEdit" name="inRuecklage">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
             </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="label_6">
+            <item row="3" column="5">
+             <widget class="QLineEdit" name="inHausgeldGueltigBis">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="inHausgeldGueltigAb">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_11">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -546,19 +625,12 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Gültig ab </string>
+               <string>Monatl. Abschlag </string>
               </property>
              </widget>
             </item>
-            <item row="5" column="2">
-             <widget class="QToolButton" name="tbMieteGueltigBis">
-              <property name="text">
-               <string>...</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="3" colspan="2">
-             <spacer name="horizontalSpacer">
+            <item row="3" column="7">
+             <spacer name="horizontalSpacer_2">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -570,97 +642,15 @@
               </property>
              </spacer>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+            <item row="4" column="0">
+             <widget class="QLabel" name="label_18">
               <property name="text">
-               <string>Gültig bis </string>
-              </property>
-             </widget>
-            </item>
-            <item row="6" column="1" colspan="4">
-             <widget class="QPlainTextEdit" name="inMieteBemerkung">
-              <property name="maximumSize">
-               <size>
-                <width>16777215</width>
-                <height>60</height>
-               </size>
-              </property>
-              <property name="plainText">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLineEdit" name="inMieteGueltigAb">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1">
-             <widget class="QLineEdit" name="inMieteGueltigBis">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLineEdit" name="inNkAbschlag">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>NK-Abschlag </string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_4">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Netto-Miete </string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="0">
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>Historie </string>
+               <string> Bemerkung </string>
               </property>
              </widget>
             </item>
             <item row="0" column="0">
-             <spacer name="verticalSpacer_2">
+             <spacer name="verticalSpacer_5">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -675,25 +665,55 @@
               </property>
              </spacer>
             </item>
-            <item row="6" column="0">
-             <widget class="QLabel" name="label_16">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
+            <item row="1" column="4">
+             <widget class="QLabel" name="label_12">
               <property name="text">
-               <string>Bemerkung </string>
+               <string>davon Rücklage </string>
               </property>
              </widget>
             </item>
-            <item row="3" column="2">
-             <widget class="QToolButton" name="tbMieteGueltigAb">
+            <item row="3" column="4">
+             <widget class="QLabel" name="label_17">
+              <property name="text">
+               <string>Gültig bis </string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="6">
+             <widget class="QToolButton" name="tbHausgeldGueltigAb_2">
               <property name="text">
                <string>...</string>
               </property>
              </widget>
+            </item>
+            <item row="4" column="1" colspan="7">
+             <widget class="QTextEdit" name="txtHausgeldBemerkung">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>60</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="5" column="1" colspan="7">
+             <widget class="QTableView" name="tblHausgeldHistorie"/>
             </item>
            </layout>
           </widget>
@@ -918,8 +938,8 @@
    <slot>onRechnungenRowDblClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>814</x>
-     <y>811</y>
+     <x>724</x>
+     <y>819</y>
     </hint>
     <hint type="destinationlabel">
      <x>718</x>
@@ -959,6 +979,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>tblMieten</sender>
+   <signal>doubleClicked(QModelIndex)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onMietenRowDblClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>948</x>
+     <y>215</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1169</x>
+     <y>213</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnEditMiete</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onMietenRowDblClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>743</x>
+     <y>805</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1168</x>
+     <y>773</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onRechnungenClicked()</slot>
@@ -973,5 +1025,6 @@
   <slot>onRechnungenFilterChanged()</slot>
   <slot>onTestClicked()</slot>
   <slot>onDeleteRechnungClicked()</slot>
+  <slot>onMietenRowDblClicked()</slot>
  </slots>
 </ui>

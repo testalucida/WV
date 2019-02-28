@@ -86,6 +86,12 @@ class DataProvider:
                 str( whg_id ) + '&user=' + self.__user)
         return resp
 
+    def getMieteData(self, whg_id ):
+        resp = self.__session. \
+            get('http://localhost/kendelweb/dev/php/business.php?q=miete_data&id=' +
+                str(whg_id) + '&user=' + self.__user)
+        return resp
+
     def updateRechnung(self, rg_dict):
         resp = self.__session. \
             post('http://localhost/kendelweb/dev/php/business.php?q=update_rechnung&user=' + self.__user, data=rg_dict)
