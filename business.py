@@ -33,6 +33,7 @@ class ServiceError(Exception):
         dic = {'rc': self.__rc, 'msg': self.__msg }
         return dic
 
+#+++++++++++++++++++++++++++++++++++++++++
 
 class WriteRetVal:
     def __init__(self, rc, obj_id):
@@ -49,6 +50,7 @@ class WriteRetVal:
     def object_id(self):
         return self.__obj_id
 
+#+++++++++++++++++++++++++++++++++++++++++
 
 class DataProvider:
 
@@ -91,6 +93,30 @@ class DataProvider:
             get('http://localhost/kendelweb/dev/php/business.php?q=miete_data&id=' +
                 str(whg_id) + '&user=' + self.__user)
         return resp
+
+    '''
+    insert new Miete
+    '''
+    def insertMiete(self, miete: dict):
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=insert_miete&user=' + self.__user,
+                 data=miete)
+
+        retval = self.__getWriteRetVal(resp)
+        if type(retval) == ServiceError:
+            raise retval
+        else:
+            return retval
+
+    def updateMiete(self, miete_dict):
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=update_miete&user=' + self.__user, data=miete_dict)
+
+        retval = self.__getWriteRetVal(resp)
+        if type(retval) == ServiceError:
+            raise retval
+        else:
+            return retval
 
     def updateRechnung(self, rg_dict):
         resp = self.__session. \

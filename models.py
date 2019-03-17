@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from typing import Dict, Any, Callable, List
 from PyQt5.QtCore import QVariant, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QStandardItem, QStandardItemModel
+
+from testTable import DictTableRow
 
 
 class OrtItem( QStandardItem ):
@@ -112,18 +115,32 @@ class TableItem(QStandardItem):
         self.__key = key
         self.__dictTableRow = dictTableRow
 
-    def key(self):
+    def key(self) -> str:
         return self.__key
 
-    def value(self):
+    def value(self) -> str:
         return self.text()
 
+    def intValue(self) -> int:
+        return int(self.text())
+
+    def floatValue(self) -> float:
+        return float(self.text())
+
     # returns the DictTableRow this TableItem belongs to
-    def dictTableRow(self):
+    def dictTableRow(self) -> DictTableRow:
         return self.__dictTableRow
 
-    def setValue(self, newValue ):
+    def setValue(self, newValue: str ) -> None:
         self.setText( newValue )
+        self.__dictTableRow.dictionary()[self.__key] = newValue
+
+    def setNumValue(self, newValue):
+        """
+        :param newValue: int or float
+        :return: None
+        """
+        self.setText(str(newValue))
 
     def print(self):
         print( "key: ", self.key(), " value: ", self.value() )
@@ -139,6 +156,12 @@ class DictTableRow( list ) :
             item = TableItem(key, val, self)
             self.append(item)
 
+    def getItem(self, key: str) -> TableItem:
+        for i in self:
+            if i.key() == key:
+                return i
+        return None
+
     def value(self, key):
         #return self.__dict[key]
         for item in self:
@@ -149,6 +172,9 @@ class DictTableRow( list ) :
         for item in self:
             if item.key() == key:
                 item.setValue(newValue)
+
+    def dictionary(self):
+        return self.__dict
 
     def dump(self):
         for item in self:

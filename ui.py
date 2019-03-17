@@ -2,9 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import Qt, QDate
-from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QHBoxLayout, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QMainWindow, QMessageBox, QHBoxLayout, \
+    QDialogButtonBox, QLineEdit, QPlainTextEdit, QTextEdit, QSpinBox, QComboBox
 from PyQt5 import uic
-from models import Rechnung, RechnungItem
+from dialog import Dialog
+#from models import Rechnung, RechnungItem
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class MainWindow(QMainWindow):
     __controller = None
@@ -58,6 +62,9 @@ class MainWindow(QMainWindow):
     def onMietenRowDblClicked( self ):
         self.__controller.onMietenTableDblClicked()
 
+    # def onAdjustMieteClicked(self):
+    #     self.__controller.onAdjustMieteClicked()
+
     def showError(self, text, details = None):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
@@ -67,6 +74,14 @@ class MainWindow(QMainWindow):
         msg.setStandardButtons(QMessageBox.Abort)
         msg.exec_()
 
+    def showInformation(self, text):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setText(text)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class RechnungDlg( QDialog ):
 
@@ -123,59 +138,127 @@ class RechnungDlg( QDialog ):
         #close dialog:
         QDialog.accept( self )
 
+#++++++++++++++++++++++++++++++++++++++
 
-class MieteDlg( QDialog ):
-    def __init__(self, controller, mieteTableRow = None):
-        # mieteTableRow: type of DictTableRow containing TableItems
-        super(MieteDlg, self).__init__()
-        self.__controller = controller
-        self.__mieteTableRow = mieteTableRow #type of dictionary (list of DictTableRo)
-        uic.loadUi("miete.ui", self)
-        self.btnBox.layout().setDirection(QHBoxLayout.RightToLeft)
-        okbtn = self.btnBox.button(QDialogButtonBox.Ok)
-        okbtn.setAutoDefault(True)
-        okbtn.setDefault(True)
-        cbtn = self.btnBox.button(QDialogButtonBox.Cancel)
-        cbtn.setAutoDefault(False)
-        cbtn.setDefault(False)
+class WvDialog( Dialog): #replace by MyDialog
+    def __init__(self, ui_file):
+        super(WvDialog, self).__init__(ui_file)
 
-        self.setAttribute(Qt.WA_DeleteOnClose)
-        if mieteTableRow:
-            self.__data2View()
+    def setWohnungIdent(self, ident):
+        self.lblWohnung.setText(ident) #ensure to have a QLabel "lblWohnung"
 
-    def __data2View(self):
-        self.lblMieteId.setText( self.__mieteTableRow.value('whg_id'))
-        self.inNettoMiete.setText( self.__mieteTableRow.value('netto_miete') )
-        self.inNkAbschlag.setText(self.__mieteTableRow.value('nk_abschlag'))
-        self.inMieteGueltigAb.setText(self.__mieteTableRow.value('gueltig_ab'))
-        self.txtMieteBemerk.setPlainText(self.__mieteTableRow.value('bemerkung'))
+    #tool button "show calendar" for Gueltig Ab clicked:
+    def onTbGueltigAbClicked(self):
+        #self.__controller.onShowCalendarForRechnungsdatum()
+        pass
 
-    def __view2Data(self):
-        rg = self.__rechnung
-        rg.setValue('rg_nr', self.inRgNr.text())
-        rg.setValue('rg_datum', self.inRgDatum.text())
-        rg.setValue('betrag', self.inRgBetrag.text())
-        rg.setValue('firma', self.inFirma.text())
-        rg.setValue('verteilung_jahre', str(self.spinRgVerteilung.value()))
-        rg.setValue('bemerkung', self.txtRgBemerk.document().toPlainText())
-        rg.setValue('rg_bezahlt_am', self.inRgBezahltAm.text())
+    # tool button "show calendar" for Gueltig Bis clicked:
+    def onTbGueltigBisClicked(self):
+        # self.__controller.onShowCalendarForRechnungsdatum()
+        pass
 
-    def setWohnungIdent(self, ident ):
-        self.lblWohnung.setText( ident )
+#
+# class MieteDlg( DictBindingDialog ):
+#     #++++++++++++++++++++++++++++++++++
+#     class Binding:
+#         def __init__(self,
+#                      objectName = None,
+#                      getFnc = None,
+#                      setFnc = None,
+#                      key = None):
+#             self.objectName = objectName #objectName as given in Qt Designer
+#             self.getFnc = getFnc #function to get widget's value
+#             self.setFnc = setFnc #function to set widget's value
+#             self.key = key #key of dictionary entry
+#
+#         '''
+#         set value of bound widget "objectName"
+#         '''
+#         def set(self, value):
+#             self.setFnc(value)
+#
+#         '''
+#         get value from bound widget "objectName"
+#         '''
+#         def get(self):
+#             return self.getFnc()
+#     #++++++++++++++++++++++++++++++++++++
+#
+#     def __init__(self, controller, mieteTableRow=None):
+#         # mieteTableRow: type of DictTableRow containing TableItems
+#         super(MieteDlg, self).__init__("miete.ui")
+#         self.__controller = controller
+#         self.__mieteTableRow = mieteTableRow  # type of dictionary (list of DictTableRow)
+#         self.__bindingList = []
+#
+#         if mieteTableRow:
+#             #self.__data2View()
+#             self.__bind_()
+#             self.__miete_id = self.__mieteTableRow.value('miete_id')
+#
+#     def __data2View(self):
+#         #self.lblMieteId.setText( self.__mieteTableRow.value('miete_id')) #textual ident of wohnung
+#         self.inNettoMiete.setText( self.__mieteTableRow.value('netto_miete') )
+#         self.inNkAbschlag.setText(self.__mieteTableRow.value('nk_abschlag'))
+#         self.inMieteGueltigAb.setText(self.__mieteTableRow.value('gueltig_ab'))
+#         self.inMieteGueltigBis.setText(self.__mieteTableRow.value('gueltig_bis'))
+#         self.txtMieteBemerk.setPlainText(self.__mieteTableRow.value('bemerkung'))
+#
+#     def __bind_(self):
+#         self.__bind("inNettoMiete",
+#                     self.inNettoMiete.text,
+#                     self.inNettoMiete.setText,
+#                     'netto_miete')
+#         self.__bind("inNkAbschlag",
+#                     self.inNkAbschlag.text,
+#                     self.inNkAbschlag.setText,
+#                     'nk_abschlag')
+#         self.__bind("inMieteGueltigAb",
+#                     self.inMieteGueltigAb.text,
+#                     self.inMieteGueltigAb.setText,
+#                     'gueltig_ab')
+#         self.__bind("inMieteGueltigBis",
+#                     self.inMieteGueltigBis.text,
+#                     self.inMieteGueltigBis.setText,
+#                     'gueltig_bis')
+#         self.__bind("txtMieteBemerk",
+#                     self.txtMieteBemerk.toPlainText,
+#                     self.txtMieteBemerk.setText,
+#                     'bemerkung')
+#
+#     def __bind(self, objectName, getfnc, setfnc, key):
+#         binding = self.Binding(objectName, getfnc, setfnc, key)
+#         self.__bindingList.append(binding)
+#         setfnc(self.__mieteTableRow.value(key))
+#
+#     def changed(self, key):
+#         raise( "not yet implemented" )
+#
+#     def __view2Data(self):
+#         row = self.__mieteTableRow
+#         row.setValue('netto_miete', self.inNettoMiete.text())
+#         row.setValue('nk_abschlag', self.inNkAbschlag.text())
+#         row.setValue('gueltig_ab', self.inMieteGueltigAb.text())
+#         row.setValue('gueltig_bis', self.inMieteGueltigBis.text())
+#         row.setValue('bemerkung', self.txtMieteBemerk.toPlainText())
+#
+#     #tool button "show calendar" for Gueltig Ab clicked:
+#     def onTbGueltigAbClicked(self):
+#         #self.__controller.onShowCalendarForRechnungsdatum()
+#         pass
+#
+#     # tool button "show calendar" for Gueltig Bis clicked:
+#     def onTbGueltigBisClicked(self):
+#         # self.__controller.onShowCalendarForRechnungsdatum()
+#         pass
+#
+#     def accept(self):
+#         if self.__controller.validate():
+#             self.__view2Data()
+#             #close dialog:
+#             QDialog.accept( self )
 
-    #tool button "show calendar" for RgDatum clicked:
-    def onTbRgDatumCalendarClicked(self):
-        self.__controller.onShowCalendarForRechnungsdatum()
-
-    # tool button "show calendar" for Bezahlt am clicked:
-    def onTbRgBezahltAmCalendarClicked(self):
-        self.__controller.onShowCalendarForRechnungBezahltAm()
-
-    def accept(self):
-        self.__view2Data()
-        #close dialog:
-        QDialog.accept( self )
-
+#+++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class CalendarDlg(QDialog):
     __controller = None
@@ -196,3 +279,5 @@ class CalendarDlg(QDialog):
         QDialog.accept( self )
         print( "accept" )
         self.done( self.calendar.selectedDate().toJulianDay() )
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++

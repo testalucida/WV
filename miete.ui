@@ -1,104 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RechnungDlg</class>
- <widget class="QDialog" name="RechnungDlg">
+ <class>MieteDlg</class>
+ <widget class="QDialog" name="MieteDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>344</width>
-    <height>390</height>
+    <width>291</width>
+    <height>304</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Miete ändern</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="0" colspan="3">
-    <widget class="QDialogButtonBox" name="btnBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Miete-ID:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLabel" name="lblMieteId">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>0</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>NK-Abschlag: </string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
+   <item row="2" column="1">
     <widget class="QLineEdit" name="inNkAbschlag">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Netto-Miete: </string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="0">
-    <widget class="QLabel" name="label_7">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Bemerkung: </string>
      </property>
     </widget>
    </item>
@@ -148,27 +70,41 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="2">
-    <widget class="QToolButton" name="tbMieteGueltigAbCalendar">
+   <item row="3" column="2">
+    <widget class="QToolButton" name="tbMieteGueltigAb">
      <property name="text">
       <string>...</string>
      </property>
     </widget>
    </item>
    <item row="4" column="1">
-    <widget class="QLineEdit" name="inMieteGueltigAb"/>
+    <widget class="QLineEdit" name="inMieteGueltigBis"/>
    </item>
-   <item row="7" column="1" colspan="2">
-    <widget class="QTextEdit" name="txtMieteBemerk"/>
-   </item>
-   <item row="4" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
       <string>Gültig ab:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="7" column="0" colspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Gültig bis:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
     <widget class="QLineEdit" name="inNettoMiete">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -178,62 +114,130 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>NK-Abschlag: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Netto-Miete: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="inMieteGueltigAb"/>
+   </item>
+   <item row="4" column="2">
+    <widget class="QToolButton" name="tbMieteGueltigBis">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_7">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Bemerkung: </string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="2">
+    <widget class="QPlainTextEdit" name="txtMieteBemerk"/>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>inNettoMiete</tabstop>
   <tabstop>inNkAbschlag</tabstop>
   <tabstop>inMieteGueltigAb</tabstop>
-  <tabstop>tbMieteGueltigAbCalendar</tabstop>
+  <tabstop>tbMieteGueltigAb</tabstop>
   <tabstop>txtMieteBemerk</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>btnBox</sender>
+   <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>RechnungDlg</receiver>
+   <receiver>MieteDlg</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>380</y>
+     <x>171</x>
+     <y>368</y>
     </hint>
     <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
+     <x>171</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>btnBox</sender>
+   <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>RechnungDlg</receiver>
+   <receiver>MieteDlg</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>380</y>
+     <x>171</x>
+     <y>368</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
+     <x>171</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>tbMieteGueltigAbCalendar</sender>
+   <sender>tbMieteGueltigAb</sender>
    <signal>clicked()</signal>
-   <receiver>RechnungDlg</receiver>
-   <slot>onTbRgBezahltAmCalendarClicked()</slot>
+   <receiver>MieteDlg</receiver>
+   <slot>onTbGueltigAbClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>315</x>
-     <y>169</y>
+     <x>329</x>
+     <y>175</y>
     </hint>
     <hint type="destinationlabel">
      <x>347</x>
-     <y>208</y>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tbMieteGueltigBis</sender>
+   <signal>clicked()</signal>
+   <receiver>MieteDlg</receiver>
+   <slot>onTbGueltigBisClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>321</x>
+     <y>199</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>337</x>
+     <y>207</y>
     </hint>
    </hints>
   </connection>
@@ -256,7 +260,7 @@
   </property>
  </designerdata>
  <slots>
-  <slot>onTbRgDatumCalendarClicked()</slot>
-  <slot>onTbRgBezahltAmCalendarClicked()</slot>
+  <slot>onTbGueltigAbClicked()</slot>
+  <slot>onTbGueltigBisClicked()</slot>
  </slots>
 </ui>

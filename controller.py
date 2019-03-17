@@ -3,13 +3,16 @@
 
 
 import json
+from typing import Dict, Any
 from PyQt5.QtCore import Qt, QVariant
-#from PyQt5.QtWidgets import  QAbstractItemView
+from PyQt5.QtWidgets import  QTableView
 #from ui import CalendarDlg
 from business import DataProvider, ServiceError, WriteRetVal
 from rechnungcontroller import RechnungController
 from mietecontroller import MieteController
-from models import WohnungenModel, WohnungItem, RechnungenModel, Rechnung, RechnungItem, DictListTableModel
+from models import WohnungenModel, WohnungItem, \
+    RechnungenModel, Rechnung, RechnungItem, DictListTableModel, \
+    DictTableRow
 
 
 class Controller():
@@ -137,12 +140,28 @@ class Controller():
     def onMietenTableDblClicked(self):
         # get Wohnung short identifikation:
         shortIdent = self.__getSelectedWohnungIdentifikation()
-        selRow = self.__getSelectedRow(self.__mainWindow.tblMieten)
-        if not selRow is type(QVariant):
-            if self.__mieteController.editMiete(shortIdent, selRow):
-                pass
+        row = self.__getSelectedRow(self.__mainWindow.tblMieten)
+        if row == None:
+            row = self.__getTopRow(self.__mainWindow.tblMieten)
+
+        tableItem = row.getItem('miete_id')
+        rowAbove = self.__getRowAbove('miete_id', tableItem.value(),
+                                      self.__mainWindow.tblMieten)
+
+        if self.__mieteController.editMiete(shortIdent, row, rowAbove):
+            #todo: surround by try..catch; if exception: get Message
+            #      from mietecontroller
+            pass
 
         return
+
+    # def onAdjustMieteClicked(self):
+    #     # get Wohnung short identifikation:
+    #     shortIdent = self.__getSelectedWohnungIdentifikation()
+    #     # get current/last miete:
+    #     #todo
+    #     mieteNeu: DictTableRow
+    #     self.__mieteController.adjustMiete()
 
     def dumpRechnungenModel(self):
         model = self.__mainWindow.tblRechnungen.model()
@@ -220,7 +239,40 @@ class Controller():
             index = indexes[0]
             selRow = index.model().itemFromIndex(index).dictTableRow()
             return selRow
-        return QVariant
+        return None
+
+    def __getTopRow(self, tableView):
+        model = tableView.model()
+        index = model.index(0,0)
+        return model.itemFromIndex(index).dictTableRow()
+
+    def __getRowAbove(self, key: str, value: str, tableView: QTableView):
+        index = self.__getIndexFrom(key, value, tableView)
+        if index is None:
+            #todo: raise exception
+            return None
+
+        model = tableView.model()
+        if index.row() == 0:
+            return None
+
+        indexAbove = model.index(index.row()-1, 0)
+        return model.itemFromIndex(indexAbove).dictTableRow()
+
+    def __getIndexFrom(self, key: str, value: str, tableView: QTableView):
+        model = tableView.model()
+        rmax = model.rowCount()
+        cmax = model.columnCount()
+        for r in range(rmax):
+            for c in range(cmax):
+                item = model.item(r, c)
+                if item.key() == key:
+                    if item.value() == value:
+                        index = model.indexFromItem(item)
+                        r = index.row()
+                        return index
+        #todo: raise exception
+        return None
 
     def __whgData2Ui(self, details ):
         self.__mainWindow.inPlz.setText( details['plz'] )

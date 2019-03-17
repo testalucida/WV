@@ -13,7 +13,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     window = MainWindow()
-    window.btnBox.layout().setDirection(QHBoxLayout.RightToLeft)
+    #window.btnBox.layout().setDirection(QHBoxLayout.RightToLeft)
     ctrl = Controller(window)
     ctrl.initialize()
     window.set_controller(ctrl)

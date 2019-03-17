@@ -18,8 +18,7 @@ class RechnungController:
         self.__rechnungDlg.setWohnungIdent(whg_short)
         if self.__rechnungDlg.exec_() > 0:
             resp = self.__dataProvider.updateRechnung( rechnung.rechnungDictionary() )
-            dic = json.loads(resp.content)
-            if dic['rc'] == 0:
+            if resp.rc() == 0:
                 return True
         return False
 

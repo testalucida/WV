@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1175</width>
-    <height>903</height>
+    <width>1090</width>
+    <height>844</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -40,8 +40,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>871</width>
-         <height>829</height>
+         <width>786</width>
+         <height>770</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -493,6 +493,12 @@
               <property name="editTriggers">
                <set>QAbstractItemView::NoEditTriggers</set>
               </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::SingleSelection</enum>
+              </property>
               <property name="selectionBehavior">
                <enum>QAbstractItemView::SelectRows</enum>
               </property>
@@ -511,29 +517,28 @@
             <string>Miete</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="1" column="1">
-             <widget class="QPushButton" name="btnEditMiete">
-              <property name="text">
-               <string>Mietsatz ändern...</string>
+            <item row="0" column="0" colspan="2">
+             <widget class="QTableView" name="tblMieten">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="selectionMode">
+               <enum>QAbstractItemView::SingleSelection</enum>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
               </property>
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QPushButton" name="btnNewMiete">
+             <widget class="QPushButton" name="btnEditMiete">
               <property name="text">
-               <string>Neuer Mietsatz...</string>
+               <string>Miete anpassen...</string>
               </property>
              </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QPushButton" name="btnMieteDelete">
-              <property name="text">
-               <string>Mietsatz löschen</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" colspan="3">
-             <widget class="QTableView" name="tblMieten"/>
             </item>
            </layout>
           </widget>
@@ -729,31 +734,6 @@
           </widget>
          </widget>
         </item>
-        <item>
-         <widget class="QDialogButtonBox" name="btnBox">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>70</height>
-           </size>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="standardButtons">
-           <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-          </property>
-          <property name="centerButtons">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
      </widget>
@@ -781,7 +761,7 @@
          <x>0</x>
          <y>0</y>
          <width>274</width>
-         <height>829</height>
+         <height>770</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -907,7 +887,7 @@
    <hints>
     <hint type="sourcelabel">
      <x>500</x>
-     <y>819</y>
+     <y>791</y>
     </hint>
     <hint type="destinationlabel">
      <x>802</x>
@@ -938,8 +918,8 @@
    <slot>onRechnungenRowDblClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>724</x>
-     <y>819</y>
+     <x>686</x>
+     <y>791</y>
     </hint>
     <hint type="destinationlabel">
      <x>718</x>
@@ -954,8 +934,8 @@
    <slot>onRechnungenFilterChanged()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1059</x>
-     <y>804</y>
+     <x>1057</x>
+     <y>791</y>
     </hint>
     <hint type="destinationlabel">
      <x>1168</x>
@@ -970,8 +950,8 @@
    <slot>onDeleteRechnungClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>895</x>
-     <y>805</y>
+     <x>871</x>
+     <y>791</y>
     </hint>
     <hint type="destinationlabel">
      <x>1032</x>
@@ -1002,8 +982,8 @@
    <slot>onMietenRowDblClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>743</x>
-     <y>805</y>
+     <x>556</x>
+     <y>791</y>
     </hint>
     <hint type="destinationlabel">
      <x>1168</x>
@@ -1026,5 +1006,6 @@
   <slot>onTestClicked()</slot>
   <slot>onDeleteRechnungClicked()</slot>
   <slot>onMietenRowDblClicked()</slot>
+  <slot>onAdjustMiete()</slot>
  </slots>
 </ui>
