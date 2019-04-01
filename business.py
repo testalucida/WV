@@ -4,6 +4,7 @@
 import urllib.request
 import requests
 import json
+from abc import ABC, abstractmethod
 
 # def testRequests():
 #     s = requests.Session() #create a persistent session
@@ -23,17 +24,54 @@ import json
 #     r = s.get('http://localhost/kendelweb/dev/php/business.php?q=uebersicht_wohnungen&user=martin' )
 #     return r
 
-class ServiceError(Exception):
-    def __init__(self, rc, msg):
-        Exception.__init__(self)
+class AbstractWvException(Exception):
+    def __init__(self, rc: str, msg: str):
+        Exception.__init__(self, rc, msg)
         self.__rc = rc
         self.__msg = msg
 
-    def message(self):
-        dic = {'rc': self.__rc, 'msg': self.__msg }
-        return dic
+    def rc(self):
+        return self.__rc
 
-#+++++++++++++++++++++++++++++++++++++++++
+    def message(self):
+        return self.__msg
+
+    @abstractmethod
+    def toString(self):
+        pass
+
+#+++++++++++++++++++++++++++++++++++++++++++++
+
+class ServiceError(AbstractWvException):
+    def __init__(self, rc, msg):
+        AbstractWvException.__init__(self, rc, msg)
+
+    def toString(self):
+        return self.message()
+
+#+++++++++++++++++++++++++++++++++++++++++++++
+
+class DataError(AbstractWvException):
+    def __init__(self, retVal: dict):
+        AbstractWvException.__init__(self, retVal['rc'], retVal['errormsg'])
+        self.__retVal = retVal
+
+    def toString(self):
+        s: str = '+++++DataError+++++\n'
+        for k, v in self.__retVal.items():
+            s = s + k + ': ' + str(v) + '\n'
+        return s
+
+#+++++++++++++++++++++++++++++++++++++++++++++
+
+class ValidationError(AbstractWvException):
+    def __init__(self, msg: str):
+        AbstractWvException.__init__(self, '-1', msg)
+
+    def toString(self):
+        return self.message()
+
+#+++++++++++++++++++++++++++++++++++++++++++++
 
 class WriteRetVal:
     def __init__(self, rc, obj_id):
@@ -50,12 +88,14 @@ class WriteRetVal:
     def object_id(self):
         return self.__obj_id
 
-#+++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++
 
 class DataProvider:
+    JSONERROR: int = -2
 
     def __init__(self ):
         self.__session = requests.Session()
+        self.__user = ''
 
     def connect(self, user, pwd):
         self.__user = user
@@ -102,31 +142,25 @@ class DataProvider:
             post('http://localhost/kendelweb/dev/php/business.php?q=insert_miete&user=' + self.__user,
                  data=miete)
 
-        retval = self.__getWriteRetVal(resp)
-        if type(retval) == ServiceError:
-            raise retval
-        else:
-            return retval
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
 
     def updateMiete(self, miete_dict):
         resp = self.__session. \
             post('http://localhost/kendelweb/dev/php/business.php?q=update_miete&user=' + self.__user, data=miete_dict)
 
-        retval = self.__getWriteRetVal(resp)
-        if type(retval) == ServiceError:
-            raise retval
-        else:
-            return retval
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
 
     def updateRechnung(self, rg_dict):
         resp = self.__session. \
             post('http://localhost/kendelweb/dev/php/business.php?q=update_rechnung&user=' + self.__user, data=rg_dict)
 
-        retval = self.__getWriteRetVal(resp)
-        if type(retval) == ServiceError:
-            raise retval
-        else:
-            return retval
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
 
     '''
     insert new rechnung
@@ -135,11 +169,9 @@ class DataProvider:
         resp = self.__session. \
             post('http://localhost/kendelweb/dev/php/business.php?q=insert_rechnung&user=' + self.__user, data=rg_dict)
 
-        retval = self.__getWriteRetVal(resp)
-        if type(retval) == ServiceError:
-            raise retval
-        else:
-            return retval
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
 
     '''
     delete rechnung
@@ -150,23 +182,32 @@ class DataProvider:
         resp = self.__session. \
             post('http://localhost/kendelweb/dev/php/business.php?q=delete_rechnung&user=' + self.__user, data=delData)
 
-        retval = self.__getWriteRetVal(resp)
-        if type(retval) == ServiceError:
-            raise retval
-        else:
-            return retval
+        retval = self.__getWriteRetValOrRaiseException(resp)
 
-    def __getWriteRetVal(self, resp):
+        return retval
+
+    def __getWriteRetValOrRaiseException(self, resp):
         if resp.status_code != 200:
             serviceError = ServiceError( resp.status_code, resp.text )
-            return serviceError
-        else:
+            print(serviceError.toString())
+            raise serviceError
+
+        dic = {}
+        try:
             dic = json.loads(resp.content)
-            if dic['rc'] == 0:
-                return WriteRetVal(dic['rc'], dic['obj_id'])
-            else:
-                serviceError = ServiceError(dic['rc'], resp.text)
-                return serviceError
+        except ValueError as e:
+            msg: str = "+++++++++JSON Decode Error+++++++++\n" + e + \
+                       "\nresp.content:\n" + resp.content + \
+                       "\n+++++++++++++++++++++++++++++++++++\n"
+            print(msg)
+            raise ServiceError(self.JSONERROR, msg)
+
+        if dic['rc'] != 0:
+            dataError = DataError(dic)
+            raise dataError
+
+        return WriteRetVal(dic['rc'], dic['obj_id'])
+
 
 
 ######### For testing purposes only ########################

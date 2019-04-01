@@ -7,7 +7,7 @@ from typing import Dict, Any
 from PyQt5.QtCore import Qt, QVariant
 from PyQt5.QtWidgets import  QTableView
 #from ui import CalendarDlg
-from business import DataProvider, ServiceError, WriteRetVal
+from business import DataProvider, ServiceError, WriteRetVal, AbstractWvException
 from rechnungcontroller import RechnungController
 from mietecontroller import MieteController
 from models import WohnungenModel, WohnungItem, \
@@ -47,8 +47,7 @@ class Controller():
                 self.__rechnungController.newRechnung(whg_short_ident, newRechnung)
                 self.__mainWindow.tblRechnungen.model().appendRow(newRechnung)
             except ServiceError as err:
-                self.__mainWindow.showError(str(err.message()['rc']),
-                                            err.message()['msg'])
+                self.__mainWindow.showError(str(err.rc()), err.message())
 
     def onDeleteRechnungClicked(self):
         rechnungItem = self.__getSelectedRechnungTableItem()
@@ -148,10 +147,11 @@ class Controller():
         rowAbove = self.__getRowAbove('miete_id', tableItem.value(),
                                       self.__mainWindow.tblMieten)
 
-        if self.__mieteController.editMiete(shortIdent, row, rowAbove):
-            #todo: surround by try..catch; if exception: get Message
-            #      from mietecontroller
-            pass
+        try:
+            self.__mieteController.editMiete(shortIdent, row, rowAbove)
+        except AbstractWvException as e:
+            self.__mainWindow.showError("WvException in Controller.onMietenTableDblClicked:\n",
+                                        e.toString())
 
         return
 

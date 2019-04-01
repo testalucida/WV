@@ -6,9 +6,18 @@ from PyQt5.QtWidgets import QRadioButton
 # from PyQt5.QtWidgets import QApplication, QDialog, QHBoxLayout, QDialogButtonBox
 # from PyQt5 import uic
 from models import TableItem, DictTableRow
+from abc import ABC, abstractmethod
 
 
 # ++++++++++++++++++++++++++++++++++++++++
+
+class AbstractValidation:
+
+    @abstractmethod
+    def validate(self):
+        pass
+
+#+++++++++++++++++++++++++++++++++++++++++
 
 class Binding:
 
@@ -17,35 +26,51 @@ class Binding:
                  getModelValue: Callable[[], Any],
                  setModelValue: Callable[[Any], None],
                  getWidgetValue: Callable[[], Any],
-                 setWidgetValue: Callable[[Any], None]):
-        self.key = modelKey  # key of dictionary entry
-        self.getModelValue = getModelValue  # function to get model's value
-        self.setModelValue = setModelValue  # function to set model's value
-        self.getWidgetValue = getWidgetValue  # function to get widget's value
-        self.setWidgetValue = setWidgetValue  # function to set widget's value
+                 setWidgetValue: Callable[[Any], None],
+                 groupName: str = None):
+        self.__key = modelKey  # key of dictionary entry
+        self._getModelValue = getModelValue  # function to get model's value
+        self._setModelValue = setModelValue  # function to set model's value
+        self._getWidgetValue = getWidgetValue  # function to get widget's value
+        self._setWidgetValue = setWidgetValue  # function to set widget's value
+        self._groupName = groupName #an arbitrary name for grouping widgets
 
     def setBindingParms(self,
                         modelKey: str,
                         getModelValue: Callable[[], Any],
                         setModelValue: Callable[[Any], None],
                         getWidgetValue: Callable[[], Any],
-                        setWidgetValue: Callable[[Any], None]):
+                        setWidgetValue: Callable[[Any], None],
+                        groupName: str = None):
         self.key = modelKey  # key of dictionary entry
-        self.getModelValue = getModelValue
-        self.setModelValue = setModelValue
-        self.getWidgetValue = getWidgetValue  # function to get widget's value
-        self.setWidgetValue = setWidgetValue  # function to set widget's value
+        self._getModelValue = getModelValue
+        self._setModelValue = setModelValue
+        self._getWidgetValue = getWidgetValue  # function to get widget's value
+        self._setWidgetValue = setWidgetValue  # function to set widget's value
+        self._groupName = groupName
+        
+    def groupName(self) -> str:
+        return self._groupName
+
+    def key(self):
+        return self.__key
+
+    def setGroupName(self, name: str) -> None:
+        self._groupName = name
 
     def model2widget(self):
-        val = self.getModelValue()
-        self.setWidgetValue(val)
+        val = self._getModelValue()
+        self._setWidgetValue(val)
+
+    def getWidgetValue(self):
+        return self._getWidgetValue()
 
     def widget2model(self):
-        self.setModelValue(self.getWidgetValue())
+        self._setModelValue(self._getWidgetValue())
 
     def changed(self) -> bool:
-        w = self.getWidgetValue()
-        m = self.getModelValue()
+        w = self._getWidgetValue()
+        m = self._getModelValue()
         return w != m
 
 
@@ -110,8 +135,8 @@ class ComboBinding(Binding):
             setWidgetValue)
 
     def model2widget(self):
-        val = self.getModelValue()
-        self.setWidgetValue(self.key, val)
+        val = self._getModelValue()
+        self._setWidgetValue(self.key, val)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++
@@ -195,14 +220,25 @@ class RadioGroupBinding(Binding):
     def widget2model(self):
         for m in self.__radioMappingList:
             if m.radioButton.isChecked():
-                self.setModelValue(m.key)
+                self._setModelValue(m.key)
 
 
 # +++++++++++++++++++++++++++++++++++++++++++++
 
 class Bindings(list):
     def __init__(self):
-        pass
+        self._currentGroupName = None
+
+    def startGroup(self, groupName: str):
+        self._currentGroupName = groupName
+
+    def endGroup(self):
+        self._currentGroupName = None
+
+    def append(self, binding: Binding):
+        if self._currentGroupName is not None:
+            binding.setGroupName(self._currentGroupName)
+        super(Bindings, self).append(binding)
 
     def models2widgets(self):
         for b in self:
@@ -212,8 +248,27 @@ class Bindings(list):
         for b in self:
             b.widget2model()
 
+    def allWidgetValuesZero(self, groupName: str = None) -> bool:
+        for b in self:
+            if groupName is None or groupName == b.groupName():
+                val = b.getWidgetValue()
+                if val is not None and val > '':
+                    return False
+        return True
+
+    def getWidgetValue(self, key: str):
+        for b in self:
+            if b.key() == key:
+                return b.getWidgetValue()
+        #todo: raise KeyNotFoundException or similar
+
+    def getWidgetValue(self, groupName: str, key: str):
+        for b in self:
+            if b.groupName() == groupName and b.key() == key:
+                return b.getWidgetValue()
+
     def getChanges(self) -> List[Binding]:
-        l = list()
+        l = Bindings()
         for b in self:
             if b.changed():
                 l.append(b)
