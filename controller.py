@@ -12,14 +12,10 @@ from rechnungcontroller import RechnungController
 from mietecontroller import MieteController
 from models import WohnungenModel, WohnungItem, \
     RechnungenModel, Rechnung, RechnungItem, DictListTableModel, \
-    DictTableRow
+    DictTableRow, TableItem
 
 
 class Controller():
-    # __dataProvider = None
-    # __mainWindow = None
-    # __rechnungController = None
-    #__rechnungDlg = None
 
     def __init__(self, mainWindow):
         self.__mainWindow = mainWindow
@@ -37,7 +33,7 @@ class Controller():
         self.__mainWindow.tvWohnungen.setModel( whg_model)
         self.__mainWindow.tvWohnungen.expandAll()
 
-    def onNewRechnungClicked(self):
+    def onNewRechnungClicked(self) -> None:
         item = self.__getSelectedWohnungTreeItem()
         if type( item ) == WohnungItem:
             whg_short_ident = self.__getWohnungIdentifikation( item.id())
@@ -49,8 +45,8 @@ class Controller():
             except ServiceError as err:
                 self.__mainWindow.showError(str(err.rc()), err.message())
 
-    def onDeleteRechnungClicked(self):
-        rechnungItem = self.__getSelectedRechnungTableItem()
+    def onDeleteRechnungClicked(self) -> None:
+        rechnungItem: TableItem = self.__getSelectedRechnungTableItem()
         if type(rechnungItem) == RechnungItem:
             rechnung = rechnungItem.rechnung()
             rg_id = rechnung.id()
@@ -110,11 +106,12 @@ class Controller():
 
             return
 
-    '''
-    a row in tblRechnungen has been double clicked. 
-    Open the Rechnung dialog for browsing or editing
-    '''
-    def onRechnungenTableDblClicked(self):
+    def onRechnungenTableDblClicked(self) -> None:
+        """
+        a row in tblRechnungen has been double clicked.
+        Open the Rechnung dialog for browsing or editing
+        :return: None
+        """
         rechnungItem = self.__getSelectedRechnungTableItem()
         rechnung = rechnungItem.rechnung() #rechnung: list of RechnungItem
 
@@ -132,36 +129,54 @@ class Controller():
     def onTestClicked(self):
         self.dumpRechnungenModel()
 
-    '''
-     a row in tblMieten has been double clicked. 
-     Open the Miete dialog for browsing or editing
-     '''
-    def onMietenTableDblClicked(self):
+    def onMietenEdit(self) -> None:
+        """
+        a row in tblMieten has been double clicked or
+        button "Miete anpassen..." has been clicked.
+        Miete table could be empty.
+        Open the Miete dialog for browsing or editing
+        :return:
+        """
         # get Wohnung short identifikation:
         shortIdent = self.__getSelectedWohnungIdentifikation()
-        row = self.__getSelectedRow(self.__mainWindow.tblMieten)
-        if row == None:
-            row = self.__getTopRow(self.__mainWindow.tblMieten)
 
-        tableItem = row.getItem('miete_id')
-        rowAbove = self.__getRowAbove('miete_id', tableItem.value(),
-                                      self.__mainWindow.tblMieten)
+        row: DictTableRow = self.__getSelectedRow(self.__mainWindow.tblMieten)
+        if row is None:
+            row = self.__getTopRow(self.__mainWindow.tblMieten)
+        if row is not None:
+            tableItem = row.getItem('miete_id')
+            rowAbove = self.__getRowAbove('miete_id', tableItem.value(),
+                                          self.__mainWindow.tblMieten)
+        else: #mietenTable is empty. row is still None
+            item = self.__getSelectedWohnungTreeItem()
+            #item should always be of type WohnungsItem;
+            #otherwise we wouldn't have a table to select in
+            whg_id = item.id()
 
         try:
-            self.__mieteController.editMiete(shortIdent, row, rowAbove)
+            if row is None:
+                miete_row = self.__mieteController.insertFirstMiete(whg_id, shortIdent)
+                self.__mainWindow.tblMieten.model().appendRow(miete_row)
+            else:
+                self.__mieteController.editMiete(shortIdent, row, rowAbove)
         except AbstractWvException as e:
-            self.__mainWindow.showError("WvException in Controller.onMietenTableDblClicked:\n",
+            self.__mainWindow.showError(
+                "WvException in Controller.onMietenEdit:\n",
                                         e.toString())
-
         return
 
-    # def onAdjustMieteClicked(self):
-    #     # get Wohnung short identifikation:
-    #     shortIdent = self.__getSelectedWohnungIdentifikation()
-    #     # get current/last miete:
-    #     #todo
-    #     mieteNeu: DictTableRow
-    #     self.__mieteController.adjustMiete()
+    def onDeleteMiete(self):
+        row: DictTableRow = self.__getSelectedRow(self.__mainWindow.tblMieten)
+        if row is not None:
+            mieteItem: TableItem = row.getItem('miete_id')
+            try:
+                self.__mieteController.deleteMiete(mieteItem.intValue())
+                self.__mainWindow.tblMieten.model(). \
+                    removeRow(mieteItem.index().row())
+            except AbstractWvException as e:
+                self.__mainWindow.showError(
+                    "WvException in Controller.onDeleteMiete:\n",
+                                            e.toString())
 
     def dumpRechnungenModel(self):
         model = self.__mainWindow.tblRechnungen.model()
@@ -172,10 +187,12 @@ class Controller():
                 val = model.data( model.index(r,c ) )
                 print( r, '/', c, ': ', val )
 
-    '''
-    provides data for the details tab
-    '''
-    def __provideDetails(self, whg_item):
+    def __provideDetails(self, whg_item) -> None:
+        """
+        provides data for details tab
+        :param whg_item:
+        :return:
+        """
         whg = self.__dataProvider.getWohnungDetails(whg_item.id())
         if 200 != whg.status_code:
             self.__mainWindow. \
@@ -186,12 +203,14 @@ class Controller():
         details = json.loads(whg.content)
         self.__whgData2Ui(details)
 
-    '''
-    provides data for the rechnungen tab, that means 
-    all rechnungen for tblRechnungen and a distinct list of years 
-    to be used by the RechnungenFilter combobox
-    '''
     def __provideRechnungen(self, whg_item):
+        """
+        provides data for the rechnungen tab, that means
+        all rechnungen for tblRechnungen and a distinct list of years
+        to be used by the RechnungenFilter combobox
+        :param whg_item:
+        :return:
+        """
         resp = self.__dataProvider.getRechnungsUebersicht( whg_item.id() )
         if 200 != resp.status_code:
             self.__mainWindow. \
@@ -202,18 +221,21 @@ class Controller():
         rg_list = json.loads(resp.content)
         self.__rglistData2Ui(rg_list)
 
-    '''
-    provides data for the miete tab (both latest and former data)
-    '''
     def __provideMieteData(self, whg_item ):
+        """
+        provides data for the miete tab (both latest and former data)
+        :param whg_item:
+        :return:
+        """
         resp = self.__dataProvider.getMieteData( whg_item.id() )
         miete_data = json.loads( resp.content )
         self.__mieteData2Ui( miete_data )
 
-    '''
-    returns the selected tree item in tvWohnungen
-    '''
     def __getSelectedWohnungTreeItem(self):
+        """
+        returns the selected tree item in tvWohnungen
+        :return:
+        """
         indexes = self.__mainWindow.tvWohnungen.selectedIndexes()
         if len(indexes) > 0:
             index = self.__mainWindow.tvWohnungen.selectedIndexes()[0]
@@ -233,7 +255,7 @@ class Controller():
     '''
     returns the selectedRow of the given QTableView
     '''
-    def __getSelectedRow(self, tableView):
+    def __getSelectedRow(self, tableView) -> DictTableRow:
         indexes = self.__mainWindow.tblMieten.selectedIndexes()
         if len(indexes) > 0:
             index = indexes[0]
@@ -241,12 +263,14 @@ class Controller():
             return selRow
         return None
 
-    def __getTopRow(self, tableView):
+    def __getTopRow(self, tableView: QTableView) -> DictTableRow:
         model = tableView.model()
-        index = model.index(0,0)
-        return model.itemFromIndex(index).dictTableRow()
+        if model.rowCount() > 0:
+            index = model.index(0,0)
+            return model.itemFromIndex(index).dictTableRow()
+        return None
 
-    def __getRowAbove(self, key: str, value: str, tableView: QTableView):
+    def __getRowAbove(self, key: str, value: str, tableView: QTableView) -> DictTableRow:
         index = self.__getIndexFrom(key, value, tableView)
         if index is None:
             #todo: raise exception
@@ -355,19 +379,11 @@ class Controller():
         win.tblMieten.setColumnWidth(0, 0)
         win.tblMieten.setColumnWidth(1, 0)
 
-        # latest_miete_dic = miete_data[0]
-        # win.inNettoMiete.setText(latest_miete_dic['netto_miete'])
-        # win.inNkAbschlag.setText(latest_miete_dic['nk_abschlag'])
-        # win.inMieteGueltigAb.setText(latest_miete_dic['gueltig_ab'])
-        # #win.inMieteGueltigBis.setText(latest_miete_dic['gueltig_bis'])
-        # win.txtMieteBemerkung.setPlainText(latest_miete_dic['bemerkung'])
-        # win.lblMieteId.setText(latest_miete_dic['miete_id'])
-
     def __getSelectedWohnungIdentifikation(self):
         whg = self.__getSelectedWohnungTreeItem()
         return self.__getWohnungIdentifikation(whg.id())
 
-    def __getWohnungIdentifikation(self, whg_id):
+    def __getWohnungIdentifikation(self, whg_id) -> str:
         resp = self.__dataProvider.getWohnungIdentifikation(whg_id)
         if 200 != resp.status_code:
             self.__mainWindow. \

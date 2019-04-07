@@ -17,6 +17,53 @@ class MieteController:
         self.__mieteDlg = None
         self.__changes: Bindings = None
 
+    def deleteMiete(self, miete_id: int) -> None:
+        """
+        deletes the selected miete table entry
+        :param miete: miete entry to delete
+        :return: None
+        """
+        self.__dataProvider.deleteMiete(miete_id)
+
+    def insertFirstMiete(self, whg_id: str, whg_short: str) -> DictTableRow:
+        """
+        inserts the first miete record
+        :param whg_id: flat's id
+        :param whg_short: flat's address
+        :return:
+        """
+        # create a miete dictionary:
+        miete_dict = {
+            'whg_id': 0,
+            'miete_id': '0',
+            'gueltig_ab': '',
+            'gueltig_bis': '',
+            'netto_miete': '0',
+            'nk_abschlag': '0',
+            'brutto_miete': '',
+            'bemerkung': ''
+        }
+        miete_dict['whg_id'] = whg_id
+        row = DictTableRow(miete_dict)
+
+        self.__mieteDlg = MieteDialog(self)
+        dlg = self.__mieteDlg
+        dlg.inNettoMiete_neu.setEnabled(False)
+        dlg.inNkAbschlag_neu.setEnabled(False)
+        dlg.tbMieteGueltigAb_neu.setEnabled(False)
+        dlg.tbMieteGueltigBis_neu.setEnabled(False)
+        dlg.txtMieteBemerk_neu.setEnabled(False)
+        dlg.setValidationCallback(self.validate)
+        dlg.setWohnungIdent(whg_short)
+
+        self.__bind(dlg, row)
+
+        self.__changes = None
+        if dlg.exec_() > 0:
+            self.__dataProvider.insertMiete(miete_dict)
+            return row
+        return None
+
     def editMiete(self, whg_short,
                   miete: DictTableRow,
                   mieteNewer: DictTableRow = None) -> None:
@@ -45,23 +92,25 @@ class MieteController:
 
         self.__changes = None
         if dlg.exec_() > 0:
+            insertedRight = False
             if mieteNewer.value('miete_id') == '':
                 if mieteNewer.value('netto_miete') > '':
                     self.__dataProvider.insertMiete(mieteNewer.dictionary())
-            else:
-                updateLeft = False;
-                updateRight = False;
-                for chng in self.__changes:
-                    if chng.groupName() == 'left':
-                        updateLeft = True
-                    if chng.groupName() == 'right':
-                        updateRight = True
-                    if updateLeft and updateRight:
-                        break
-                if updateLeft:
-                    self.__dataProvider.updateMiete(miete.dictionary())
-                if updateRight:
-                    self.__dataProvider.updateMiete(mieteNewer.dictionary())
+                    insertedRight = True
+
+            updateLeft = False
+            updateRight = False
+            for chng in self.__changes:
+                if chng.groupName() == 'left':
+                    updateLeft = True
+                if chng.groupName() == 'right':
+                    updateRight = True
+                if updateLeft and updateRight:
+                    break
+            if updateLeft:
+                self.__dataProvider.updateMiete(miete.dictionary())
+            if updateRight and not insertedRight:
+                self.__dataProvider.updateMiete(mieteNewer.dictionary())
 
     def __createCopy(self, row: DictTableRow) -> DictTableRow:
         dict_cpy = copy.deepcopy(row.dictionary())
@@ -83,7 +132,7 @@ class MieteController:
 
     def __bind(self, dlg: MieteDialog,
                miete: DictTableRow,
-               mieteNeu: DictTableRow):
+               mieteNeu: DictTableRow = None) -> None:
 
         bs = Bindings()
 
@@ -109,43 +158,73 @@ class MieteController:
                         dlg.txtMieteBemerk.toPlainText, dlg.txtMieteBemerk.setPlainText)
         bs.append(b)
 
-        bs.startGroup('right')
+        if mieteNeu is not None:
+            bs.startGroup('right')
 
-        b = TextBinding(mieteNeu.getItem('netto_miete'),
-                        dlg.inNettoMiete_neu.text, dlg.inNettoMiete_neu.setText)
-        bs.append(b)
+            b = TextBinding(mieteNeu.getItem('netto_miete'),
+                            dlg.inNettoMiete_neu.text, dlg.inNettoMiete_neu.setText)
+            bs.append(b)
 
-        b = TextBinding(mieteNeu.getItem('nk_abschlag'),
-                        dlg.inNkAbschlag_neu.text, dlg.inNkAbschlag_neu.setText)
-        bs.append(b)
+            b = TextBinding(mieteNeu.getItem('nk_abschlag'),
+                            dlg.inNkAbschlag_neu.text, dlg.inNkAbschlag_neu.setText)
+            bs.append(b)
 
-        b = TextBinding(mieteNeu.getItem('gueltig_ab'),
-                        dlg.inMieteGueltigAb_neu.text, dlg.inMieteGueltigAb_neu.setText)
-        bs.append(b)
+            b = TextBinding(mieteNeu.getItem('gueltig_ab'),
+                            dlg.inMieteGueltigAb_neu.text, dlg.inMieteGueltigAb_neu.setText)
+            bs.append(b)
 
-        b = TextBinding(mieteNeu.getItem('gueltig_bis'),
-                        dlg.inMieteGueltigBis_neu.text, dlg.inMieteGueltigBis_neu.setText)
-        bs.append(b)
+            b = TextBinding(mieteNeu.getItem('gueltig_bis'),
+                            dlg.inMieteGueltigBis_neu.text, dlg.inMieteGueltigBis_neu.setText)
+            bs.append(b)
 
-        b = TextBinding(mieteNeu.getItem('bemerkung'),
-                        dlg.txtMieteBemerk_neu.toPlainText, dlg.txtMieteBemerk_neu.setPlainText)
-        bs.append(b)
+            b = TextBinding(mieteNeu.getItem('bemerkung'),
+                            dlg.txtMieteBemerk_neu.toPlainText, dlg.txtMieteBemerk_neu.setPlainText)
+            bs.append(b)
 
         dlg.setBindings(bs)
 
-    def onShowCalendarForGueltigAb(self):
-        gueltigAb = self.__mieteDlg.inMieteGueltigAb.text()
-        olddate = QDate.fromString( gueltigAb, "yyyy-MM-dd" )
-        retval = self.__showCalendar( olddate )
-        if type( retval ) == QDate:
-            self.__mieteDlg.inMieteGueltigAb.setText(retval.toString("yyyy-MM-dd"))
+    def add1Day(self, date: str) -> QDate:
+        qdate = QDate.fromString(date, "yyyy-MM-dd")
+        if qdate.isValid():
+            qdate = qdate.addDays(1)
 
-    def onShowCalendarForGueltigBis(self):
-        gueltigBis = self.__mieteDlg.inMieteGueltigBis.text()
-        olddate = QDate.fromString( gueltigBis, "yyyy-MM-dd" )
-        retval = self.__showCalendar( olddate )
+            return qdate
+
+        return QDate()
+
+    def onShowCalendarForGueltigAb(self, senderName: str):
+        if senderName == 'tbMieteGueltigAb':
+            gueltigAb = QDate.fromString(self.__mieteDlg.inMieteGueltigAb.text(), "yyyy-MM-dd" )
+        else: #'tbMieteGueltigAb_neu'
+            tmp = self.__mieteDlg.inMieteGueltigAb_neu.text()
+            if len(tmp) < 1:
+                gueltigAb = self.add1Day(self.__mieteDlg.inMieteGueltigBis.text())
+            else:
+                gueltigAb = QDate.fromString(tmp, "yyyy-MM-dd")
+
+        retval = self.__showCalendar( gueltigAb )
         if type( retval ) == QDate:
-            self.__mieteDlg.inMieteGueltigBis.setText(retval.toString("yyyy-MM-dd"))
+            if senderName == 'tbMieteGueltigAb':
+                self.__mieteDlg.inMieteGueltigAb.setText(retval.toString("yyyy-MM-dd"))
+            else:
+                self.__mieteDlg.inMieteGueltigAb_neu.setText(retval.toString("yyyy-MM-dd"))
+
+    def onShowCalendarForGueltigBis(self, senderName: str):
+        if senderName == 'tbMieteGueltigBis':
+            gueltigBis = QDate.fromString(self.__mieteDlg.inMieteGueltigBis.text(), "yyyy-MM-dd" )
+        else: #'tbMieteGueltigBis_neu'
+            tmp = self.__mieteDlg.inMieteGueltigBis_neu.text()
+            if len(tmp) < 1:
+                gueltigBis = self.add1Day(self.__mieteDlg.inMieteGueltigBis.text())
+            else:
+                gueltigAb = QDate.fromString(tmp, "yyyy-MM-dd")
+
+        retval = self.__showCalendar( gueltigBis )
+        if type( retval ) == QDate:
+            if senderName == 'tbMieteGueltigBis':
+                self.__mieteDlg.inMieteGueltigBis.setText(retval.toString("yyyy-MM-dd"))
+            else:
+                self.__mieteDlg.inMieteGueltigBis_neu.setText(retval.toString("yyyy-MM-dd"))
 
     def __showCalendar(self, startDate ):
         cal = CalendarDlg(self)
@@ -154,6 +233,16 @@ class MieteController:
         if retVal > 0:
             return QDate.fromJulianDay( retVal )
         else: return QVariant
+
+    def resetDate(self, senderName: str):
+        if senderName == 'tbResetMietGueltigAb':
+            self.__mieteDlg.inMieteGueltigAb.setText('')
+        elif senderName == 'tbResetMietGueltigBis':
+            self.__mieteDlg.inMieteGueltigBis.setText('')
+        elif senderName == 'tbResetMietGueltigAb_neu':
+            self.__mieteDlg.inMieteGueltigAb_neu.setText('')
+        elif senderName == 'tbResetMietGueltigBis_neu':
+            self.__mieteDlg.inMieteGueltigBis_neu.setText('')
 
     def validate(self, bindings: Bindings, changes: Bindings) -> str:
         msg: str = self.validateLeftSide(bindings)

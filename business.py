@@ -154,6 +154,15 @@ class DataProvider:
 
         return retval
 
+    def deleteMiete(self, miete_id):
+        d = {'miete_id': miete_id}
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=delete_miete&user=' + self.__user, data=d)
+
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
+
     def updateRechnung(self, rg_dict):
         resp = self.__session. \
             post('http://localhost/kendelweb/dev/php/business.php?q=update_rechnung&user=' + self.__user, data=rg_dict)

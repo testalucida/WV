@@ -42,6 +42,9 @@ class MainWindow(QMainWindow):
     # def onFilterRechnungenClicked(self):
     #     self.__controller.onFilterRechnungenClicked()
 
+    def onDeleteMiete(self):
+        self.__controller.onDeleteMiete()
+
     def onTestClicked(self):
         self.__controller.onTestClicked()
 
@@ -62,7 +65,7 @@ class MainWindow(QMainWindow):
         self.__hiddenRows.clear()
 
     def onMietenRowDblClicked( self ):
-        self.__controller.onMietenTableDblClicked()
+        self.__controller.onMietenEdit()
 
     # def onAdjustMieteClicked(self):
     #     self.__controller.onAdjustMieteClicked()
@@ -171,13 +174,18 @@ class MieteDialog(WvDialog):
         self.inNkAbschlag.setValidator(val)
         self.inNkAbschlag_neu.setValidator(val)
 
+
+    def onDatumReset(self):
+        senderName = self.sender().objectName()
+        self.__mieteController.resetDate(senderName)
+
     def onMieteGueltigAbClicked(self):
-        name = self.sender().objectName()
-        self.__mieteController.onShowCalendarForGueltigAb()
+        senderName = self.sender().objectName()
+        self.__mieteController.onShowCalendarForGueltigAb(senderName)
 
     def onMieteGueltigBisClicked(self):
-        name = self.sender().objectName()
-        self.__mieteController.onShowCalendarForGueltigBis()
+        senderName = self.sender().objectName()
+        self.__mieteController.onShowCalendarForGueltigBis(senderName)
 
 #+++++++++++++++++++++++++++++++++++++++
 
@@ -198,7 +206,6 @@ class CalendarDlg(QDialog):
     def accept(self):
         #close dialog:
         QDialog.accept( self )
-        print( "accept" )
         self.done( self.calendar.selectedDate().toJulianDay() )
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -540,6 +540,13 @@
               </property>
              </widget>
             </item>
+            <item row="1" column="1">
+             <widget class="QPushButton" name="btnDeleteMiete">
+              <property name="text">
+               <string>Eintrag löschen</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="tabHausgeld">
@@ -991,6 +998,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>btnDeleteMiete</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>onDeleteMiete()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>924</x>
+     <y>783</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1087</x>
+     <y>703</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onRechnungenClicked()</slot>
@@ -1007,5 +1030,6 @@
   <slot>onDeleteRechnungClicked()</slot>
   <slot>onMietenRowDblClicked()</slot>
   <slot>onAdjustMiete()</slot>
+  <slot>onDeleteMiete()</slot>
  </slots>
 </ui>
