@@ -176,6 +176,9 @@ class DictTableRow( list ) :
     def dictionary(self):
         return self.__dict
 
+    def columnNames(self) -> List[str]:
+        return self.__dict.keys()
+
     def dump(self):
         for item in self:
             item.print()
@@ -203,6 +206,12 @@ class DictListTableModel(QStandardItemModel):
                     self.setHeaderData(c, Qt.Horizontal, key)
                     c += 1
             headers = True
+
+    def setColumnNames(self, names: List[str]):
+        #doesn't work because a signal is missing after
+        #having set columnNames
+        for c in range(self.columnCount()):
+            self.setHeaderData(c, Qt.Horizontal, names[c])
 
     #returns the DictTableRow the specified item belongs to
     def rowDictionary(self, index):

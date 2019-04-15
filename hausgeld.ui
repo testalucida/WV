@@ -63,7 +63,7 @@
     </size>
    </property>
    <property name="title">
-    <string>Miete</string>
+    <string>Hausgeld</string>
    </property>
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
@@ -405,46 +405,14 @@
    </hints>
   </connection>
   <connection>
-   <sender>tbHausgeldGueltigAb</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>HausgeldDlg</receiver>
-   <slot>onMieteGueltigAbClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>192</x>
-     <y>181</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>11</x>
-     <y>267</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tbHausgeldGueltigBis</sender>
-   <signal>clicked()</signal>
-   <receiver>HausgeldDlg</receiver>
-   <slot>onMieteGueltigBisClicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>198</x>
-     <y>210</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>3</x>
-     <y>226</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>tbResetHausgeldGueltigAb</sender>
    <signal>clicked()</signal>
    <receiver>HausgeldDlg</receiver>
    <slot>onDatumReset()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>236</x>
-     <y>172</y>
+     <x>282</x>
+     <y>187</y>
     </hint>
     <hint type="destinationlabel">
      <x>412</x>
@@ -459,8 +427,8 @@
    <slot>onDatumReset()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>227</x>
-     <y>209</y>
+     <x>280</x>
+     <y>218</y>
     </hint>
     <hint type="destinationlabel">
      <x>415</x>
@@ -468,11 +436,42 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>tbHausgeldGueltigAb</sender>
+   <signal>clicked()</signal>
+   <receiver>HausgeldDlg</receiver>
+   <slot>onHausgeldGueltigAbClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>236</x>
+     <y>170</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>304</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tbHausgeldGueltigBis</sender>
+   <signal>clicked()</signal>
+   <receiver>HausgeldDlg</receiver>
+   <slot>onHausgeldGueltigBisClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>208</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>340</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
-  <slot>onMieteGueltigAbClicked()</slot>
-  <slot>onMieteGueltigBisClicked()</slot>
-  <slot>onMieteGueltigAbNeuClicked(senderName)</slot>
+  <slot>onHausgeldGueltigAbClicked()</slot>
+  <slot>onHausgeldGueltigBisClicked()</slot>
   <slot>onDatumReset()</slot>
  </slots>
 </ui>

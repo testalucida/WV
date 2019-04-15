@@ -134,9 +134,33 @@ class DataProvider:
                 str(whg_id) + '&user=' + self.__user)
         return resp
 
-    '''
-    insert new Miete
-    '''
+    def getHausgeldData(self, whg_id: str ) :
+        resp = self.__session. \
+            get('http://localhost/kendelweb/dev/php/business.php?q=hausgeld_data&id=' +
+                str(whg_id) + '&user=' + self.__user)
+        return resp
+
+    def insertHausgeld(self, hausgeld: dict):
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=insert_hausgeld&user=' + self.__user,
+                 data=hausgeld)
+
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
+
+    def updateHausgeld(self, hausgeld: dict):
+        pass
+
+    def deleteHausgeld(self, hausgeld_id: str):
+        d = {'hausgeld_id': hausgeld_id}
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=delete_hausgeld&user=' + self.__user, data=d)
+
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
+
     def insertMiete(self, miete: dict):
         resp = self.__session. \
             post('http://localhost/kendelweb/dev/php/business.php?q=insert_miete&user=' + self.__user,

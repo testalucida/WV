@@ -262,13 +262,13 @@ class MieteController:
                 return 'Wenn die Werte der rechten Seite gefüllt sind, dürfen die der linken Seite ' \
                        'nicht leer sein. Übertragen Sie die Werte auf die linke Seite.'
 
-        if bindings.getWidgetValue('left', 'netto_miete') <= '0':
+        if bindings.getWidgetValue('netto_miete', 'left') <= '0':
             return 'Netto-Miete darf nicht 0 sein.'
 
-        if bindings.getWidgetValue('left', 'nk_abschlag') <= '0':
+        if bindings.getWidgetValue('nk_abschlag', 'left') <= '0':
             return 'Nebenkosten-Abschlag darf nicht 0 sein.'
 
-        gueltAb = bindings.getWidgetValue('left', 'gueltig_ab')
+        gueltAb = bindings.getWidgetValue('gueltig_ab', 'left')
         if gueltAb == '':
             return 'Gültig ab darf nicht leer sein.'
 
@@ -276,7 +276,7 @@ class MieteController:
         if not gueltAb.isValid():
             return 'Gültig ab ist kein gültiges Datumsformat.'
 
-        gueltBis = bindings.getWidgetValue('left', 'gueltig_bis')
+        gueltBis = bindings.getWidgetValue('gueltig_bis', 'left')
         if gueltBis > '':
             gueltBis = QDate.fromString( gueltBis, "yyyy-MM-dd" )
             if not gueltBis.isValid():
@@ -290,13 +290,13 @@ class MieteController:
         if bindings.allWidgetValuesZero('right'):
                 return ''
 
-        if bindings.getWidgetValue('right', 'netto_miete') <= '0':
+        if bindings.getWidgetValue('netto_miete', 'right') <= '0':
             return 'Netto-Miete darf nicht 0 sein.'
 
-        if bindings.getWidgetValue('right', 'nk_abschlag') <= '0':
+        if bindings.getWidgetValue('nk_abschlag', 'right') <= '0':
             return 'Nebenkosten-Abschlag darf nicht 0 sein.'
 
-        gueltAb = bindings.getWidgetValue('right', 'gueltig_ab')
+        gueltAb = bindings.getWidgetValue('gueltig_ab', 'right')
         if gueltAb == '':
             return 'Gültig ab darf nicht leer sein.'
 
@@ -304,7 +304,7 @@ class MieteController:
         if not gueltAb.isValid():
             return 'Gültig ab ist kein gültiges Datumsformat.'
 
-        gueltBisLeft = bindings.getWidgetValue('left', 'gueltig_bis')
+        gueltBisLeft = bindings.getWidgetValue('gueltig_bis', 'right')
         if gueltBisLeft <= '':
             return 'Werte auf der rechten Seite können erst eingetragen' \
                    'werden, wenn auf der linken Seite ein Gültig-bis-Datum ' \
@@ -315,7 +315,7 @@ class MieteController:
             return 'Gültig bis auf der linken Seite ' \
                    'darf nicht größer sein als Gültig ab auf der rechten Seite.'
 
-        gueltBis = bindings.getWidgetValue('right', 'gueltig_bis')
+        gueltBis = bindings.getWidgetValue('gueltig_bis', 'right')
         if gueltBis > '':
             gueltBis = QDate.fromString( gueltBis, "yyyy-MM-dd" )
             if not gueltBis.isValid():

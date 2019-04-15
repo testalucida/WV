@@ -70,6 +70,15 @@ class MainWindow(QMainWindow):
     # def onAdjustMieteClicked(self):
     #     self.__controller.onAdjustMieteClicked()
 
+    def onNewHausgeldClicked(self):
+        self.__controller.onNewHausgeld()
+
+    def onEditHausgeldClicked(self):
+        self.__controller.onEditHausgeld()
+
+    def onDeleteHausgeldClicked(self):
+        self.__controller.onDeleteHausgeld()
+
     def showError(self, text, details = None):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Critical)
@@ -188,6 +197,28 @@ class MieteDialog(WvDialog):
         self.__mieteController.onShowCalendarForGueltigBis(senderName)
 
 #+++++++++++++++++++++++++++++++++++++++
+
+class HausgeldDialog(WvDialog):
+    def __init__(self, hausgeldController):
+        super(HausgeldDialog, self).__init__("hausgeld.ui")
+        self.__hausgeldController = hausgeldController
+        val = QDoubleValidator(0, 9999, 2)
+        self.inHausgeldAbschlag.setValidator(val)
+        self.inDavonRuecklage.setValidator(val)
+
+    def onDatumReset(self):
+        senderName = self.sender().objectName()
+        self.__hausgeldController.resetDate(senderName)
+
+    def onHausgeldGueltigAbClicked(self):
+        senderName = self.sender().objectName()
+        self.__hausgeldController.onShowCalendar(senderName)
+
+    def onHausgeldGueltigBisClicked(self):
+        senderName = self.sender().objectName()
+        self.__hausgeldController.onShowCalendar(senderName)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++
 
 class CalendarDlg(QDialog):
     __controller = None

@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-
 import json
-from typing import Dict, Any
+from typing import Dict, Any, List
 from PyQt5.QtCore import Qt, QVariant
-from PyQt5.QtWidgets import  QTableView
+from PyQt5.QtWidgets import QWidget, QTableView, QLineEdit, \
+    QSpinBox, QCheckBox, QComboBox, QPlainTextEdit
 #from ui import CalendarDlg
 from business import DataProvider, ServiceError, WriteRetVal, AbstractWvException
 from rechnungcontroller import RechnungController
 from mietecontroller import MieteController
+from hausgeldcontroller import HausgeldController
 from models import WohnungenModel, WohnungItem, \
     RechnungenModel, Rechnung, RechnungItem, DictListTableModel, \
     DictTableRow, TableItem
@@ -19,14 +20,18 @@ class Controller():
 
     def __init__(self, mainWindow):
         self.__mainWindow = mainWindow
+        self.__selectedWohnungItem = None
         self.__dataProvider = DataProvider()
         self.__rechnungController = None
         self.__mieteController = None
+        self.__hausgeldController = None
 
     def initialize(self):
         self.__dataProvider.connect('martin', 'fuenf55') #TODO: login dialog
         self.__rechnungController = RechnungController( self.__dataProvider )
         self.__mieteController = MieteController(self.__dataProvider)
+        self.__hausgeldController = HausgeldController(self.__dataProvider)
+
         resp = self.__dataProvider.getWohnungsUebersicht()
         whg_list = json.loads( resp.content )
         whg_model = WohnungenModel(whg_list)
@@ -34,11 +39,11 @@ class Controller():
         self.__mainWindow.tvWohnungen.expandAll()
 
     def onNewRechnungClicked(self) -> None:
-        item = self.__getSelectedWohnungTreeItem()
-        if type( item ) == WohnungItem:
-            whg_short_ident = self.__getWohnungIdentifikation( item.id())
+        #item = self.__getSelectedWohnungTreeItem()
+        if self.__selectedWohnungItem is not None:
+            whg_short_ident = self.__getWohnungIdentifikation( self.__selectedWohnungItem.id())
             newRechnung = Rechnung()
-            newRechnung.setValue('whg_id', item.id())
+            newRechnung.setValue('whg_id', self.__selectedWohnungItem.id())
             try:
                 self.__rechnungController.newRechnung(whg_short_ident, newRechnung)
                 self.__mainWindow.tblRechnungen.model().appendRow(newRechnung)
@@ -64,7 +69,8 @@ class Controller():
     If this item is of type WohnungItem get data for all tabs
     '''
     def onWohnungenTreeClicked(self):
-        item = self.__getSelectedWohnungTreeItem()
+        self.__selectedWohnungItem = self.__getSelectedWohnungTreeItem()
+        item = self.__selectedWohnungItem
         #self.__enableButtons( type( item ) == WohnungItem )
         if type( item ) == WohnungItem:
             #provide data for wohnung details:
@@ -73,10 +79,14 @@ class Controller():
             self.__provideRechnungen( item )
             #provide data for miete tab:
             self.__provideMieteData( item )
-            #todo: provide data for other tabs:
-            # 2. provide data for hausgeld tab
+            #provide data for hausgeld tab
+            self.__provideHausgeldData(item)
+            # todo: provide data for other tabs:
             # 3. provide data for sonstige ein-/auszahlungen tab
             # 4. provide data for mieter tab
+        else:
+            self.__selectedWohnungItem = None
+            self.__clearMainWindow()
 
     '''
     on Rechnungen tab a year filter was set.
@@ -140,23 +150,24 @@ class Controller():
         # get Wohnung short identifikation:
         shortIdent = self.__getSelectedWohnungIdentifikation()
 
-        row: DictTableRow = self.__getSelectedRow(self.__mainWindow.tblMieten)
-        if row is None:
-            row = self.__getTopRow(self.__mainWindow.tblMieten)
+        row: DictTableRow = self.__getBestRow(self.__mainWindow.tblMieten)
         if row is not None:
             tableItem = row.getItem('miete_id')
             rowAbove = self.__getRowAbove('miete_id', tableItem.value(),
                                           self.__mainWindow.tblMieten)
         else: #mietenTable is empty. row is still None
-            item = self.__getSelectedWohnungTreeItem()
+            #item = self.__getSelectedWohnungTreeItem()
             #item should always be of type WohnungsItem;
             #otherwise we wouldn't have a table to select in
-            whg_id = item.id()
+            if self.__selectedWohnungItem is not None:
+                whg_id = self.__selectedWohnungItem.id()
 
         try:
             if row is None:
-                miete_row = self.__mieteController.insertFirstMiete(whg_id, shortIdent)
-                self.__mainWindow.tblMieten.model().appendRow(miete_row)
+                miete_row: DictTableRow = self.__mieteController.insertFirstMiete(whg_id, shortIdent)
+                model = self.__mainWindow.tblMieten.model()
+                model.setColumnNames(miete_row.columnNames())
+                model.appendRow(miete_row)
             else:
                 self.__mieteController.editMiete(shortIdent, row, rowAbove)
         except AbstractWvException as e:
@@ -164,6 +175,18 @@ class Controller():
                 "WvException in Controller.onMietenEdit:\n",
                                         e.toString())
         return
+
+    def __getBestRow(self, table: QTableView) -> DictTableRow:
+        """
+        returns either the selected row or in case no row is selected
+        the top row
+        :param table: QTableView to get the row from
+        :return: the best row or None if table is empty
+        """
+        row: DictTableRow = self.__getSelectedRow(table)
+        if row is None:
+            row = self.__getTopRow(table)
+        return row
 
     def onDeleteMiete(self):
         row: DictTableRow = self.__getSelectedRow(self.__mainWindow.tblMieten)
@@ -177,6 +200,32 @@ class Controller():
                 self.__mainWindow.showError(
                     "WvException in Controller.onDeleteMiete:\n",
                                             e.toString())
+
+    def onNewHausgeld(self):
+        if self.__selectedWohnungItem is not None:
+            # get Wohnung short identifikation:
+            shortIdent = self.__getSelectedWohnungIdentifikation()
+            whg_id = self.__selectedWohnungItem.id()
+            row: DictTableRow = self.__hausgeldController.newHausgeld(whg_id, shortIdent)
+            model = self.__mainWindow.tblHausgeld.model()
+            model.setColumnNames(row.columnNames())
+            model.appendRow(row)
+
+    def onEditHausgeld(self):
+        # get Wohnung short identifikation:
+        shortIdent = self.__getSelectedWohnungIdentifikation()
+        row: DictTableRow = self.__getBestRow(self.__mainWindow.tblHausgeld)
+        if row is None:
+            return
+
+        self.__hausgeldController.editHausgeld(shortIdent, row)
+
+    def onDeleteHausgeld(self):
+        row: DictTableRow = self.__getBestRow(self.__mainWindow.tblHausgeld)
+        if row is None:
+            return
+
+        self.__hausgeldController.deleteHausgeld(row.getItem('hausgeld_id').value())
 
     def dumpRechnungenModel(self):
         model = self.__mainWindow.tblRechnungen.model()
@@ -231,7 +280,12 @@ class Controller():
         miete_data = json.loads( resp.content )
         self.__mieteData2Ui( miete_data )
 
-    def __getSelectedWohnungTreeItem(self):
+    def __provideHausgeldData(self, whg_item: WohnungItem) -> None:
+        resp = self.__dataProvider.getHausgeldData(whg_item.id())
+        hausgeld_data = json.loads(resp.content)
+        self.__hausgeldData2Ui(hausgeld_data)
+
+    def __getSelectedWohnungTreeItem(self) -> WohnungItem or None:
         """
         returns the selected tree item in tvWohnungen
         :return:
@@ -242,7 +296,7 @@ class Controller():
             d = index.model().itemFromIndex(index)
             #print(d.data(Qt.DisplayRole))
             return d
-        return QVariant
+        return None
 
     def __getSelectedRechnungTableItem(self):
         indexes = self.__mainWindow.tblRechnungen.selectedIndexes()
@@ -297,6 +351,25 @@ class Controller():
                         return index
         #todo: raise exception
         return None
+
+    def __clearMainWindow(self):
+        self.__clearMainWindow_(self.__mainWindow)
+
+    def __clearMainWindow_(self, widget: QWidget) -> None:
+        if isinstance(widget, QLineEdit):
+            widget.clear()
+        elif isinstance(widget, QSpinBox):
+            widget.setValue(0)
+        elif isinstance(widget, QPlainTextEdit):
+            widget.setPlainText('')
+        elif isinstance(widget, QCheckBox):
+            widget.setChecked(False)
+        elif isinstance(widget, QComboBox):
+            widget.setCurrentIndex(0)
+        else:
+            l = widget.children()
+            for w in l:
+                self.__clearMainWindow_(w)
 
     def __whgData2Ui(self, details ):
         self.__mainWindow.inPlz.setText( details['plz'] )
@@ -364,7 +437,7 @@ class Controller():
             if rg['rg_bezahlt_am'] is not None:
                 s.add(rg['rg_bezahlt_am'][:4])
         s = sorted(s)
-        l = [];
+        l = []
         l.append( "Kein Jahresfilter" )
         for item in s:
             l.append( item )
@@ -379,9 +452,19 @@ class Controller():
         win.tblMieten.setColumnWidth(0, 0)
         win.tblMieten.setColumnWidth(1, 0)
 
-    def __getSelectedWohnungIdentifikation(self):
-        whg = self.__getSelectedWohnungTreeItem()
-        return self.__getWohnungIdentifikation(whg.id())
+    def __hausgeldData2Ui(self, hausgeld_data: List[Dict] ):
+        win = self.__mainWindow
+        model = DictListTableModel(hausgeld_data)
+        win.tblHausgeld.setModel(model)
+        #hide columns whg_id and miete_id:
+        win.tblHausgeld.setColumnWidth(0, 0)
+        win.tblHausgeld.setColumnWidth(1, 0)
+
+
+    def __getSelectedWohnungIdentifikation(self) -> str:
+        #whg = self.__getSelectedWohnungTreeItem()
+        if self.__selectedWohnungItem is not None:
+            return self.__getWohnungIdentifikation(self.__selectedWohnungItem.id())
 
     def __getWohnungIdentifikation(self, whg_id) -> str:
         resp = self.__dataProvider.getWohnungIdentifikation(whg_id)

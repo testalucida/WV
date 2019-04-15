@@ -256,16 +256,17 @@ class Bindings(list):
                     return False
         return True
 
-    def getWidgetValue(self, key: str):
+    def getWidgetValue(self, key: str, groupName: str = None):
         for b in self:
             if b.key() == key:
-                return b.getWidgetValue()
+                if groupName is None or (groupName == b.groupName()):
+                    return b.getWidgetValue()
         #todo: raise KeyNotFoundException or similar
 
-    def getWidgetValue(self, groupName: str, key: str):
-        for b in self:
-            if b.groupName() == groupName and b.key() == key:
-                return b.getWidgetValue()
+    # def getWidgetValue(self, groupName: str, key: str):
+    #     for b in self:
+    #         if b.groupName() == groupName and b.key() == key:
+    #             return b.getWidgetValue()
 
     def getChanges(self) -> List[Binding]:
         l = Bindings()
