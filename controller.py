@@ -165,15 +165,19 @@ class Controller():
         try:
             if row is None:
                 miete_row: DictTableRow = self.__mieteController.insertFirstMiete(whg_id, shortIdent)
-                model = self.__mainWindow.tblMieten.model()
-                model.setColumnNames(miete_row.columnNames())
-                model.appendRow(miete_row)
+
+                #model = self.__mainWindow.tblMieten.model()
+                #model.setColumnNames(miete_row.columnNames())
+                #model.appendRow(miete_row)
             else:
                 self.__mieteController.editMiete(shortIdent, row, rowAbove)
         except AbstractWvException as e:
             self.__mainWindow.showError(
                 "WvException in Controller.onMietenEdit:\n",
                                         e.toString())
+
+        self.__provideMieteData(self.__selectedWohnungItem)
+
         return
 
     def __getBestRow(self, table: QTableView) -> DictTableRow:
@@ -194,12 +198,13 @@ class Controller():
             mieteItem: TableItem = row.getItem('miete_id')
             try:
                 self.__mieteController.deleteMiete(mieteItem.intValue())
-                self.__mainWindow.tblMieten.model(). \
-                    removeRow(mieteItem.index().row())
+                # self.__mainWindow.tblMieten.model(). \
+                #     removeRow(mieteItem.index().row())
             except AbstractWvException as e:
                 self.__mainWindow.showError(
                     "WvException in Controller.onDeleteMiete:\n",
                                             e.toString())
+            self.__provideMieteData(self.__selectedWohnungItem)
 
     def onNewHausgeld(self):
         if self.__selectedWohnungItem is not None:
@@ -207,9 +212,11 @@ class Controller():
             shortIdent = self.__getSelectedWohnungIdentifikation()
             whg_id = self.__selectedWohnungItem.id()
             row: DictTableRow = self.__hausgeldController.newHausgeld(whg_id, shortIdent)
-            model = self.__mainWindow.tblHausgeld.model()
-            model.setColumnNames(row.columnNames())
-            model.appendRow(row)
+            #read table data again:
+            self.__provideHausgeldData(self.__selectedWohnungItem)
+            #model = self.__mainWindow.tblHausgeld.model()
+            #model.setColumnNames(row.columnNames())
+            #model.appendRow(row)
 
     def onEditHausgeld(self):
         # get Wohnung short identifikation:
@@ -219,6 +226,8 @@ class Controller():
             return
 
         self.__hausgeldController.editHausgeld(shortIdent, row)
+        #read table data again:
+        self.__provideHausgeldData(self.__selectedWohnungItem)
 
     def onDeleteHausgeld(self):
         row: DictTableRow = self.__getBestRow(self.__mainWindow.tblHausgeld)
@@ -226,6 +235,8 @@ class Controller():
             return
 
         self.__hausgeldController.deleteHausgeld(row.getItem('hausgeld_id').value())
+        #read table data again:
+        self.__provideHausgeldData(self.__selectedWohnungItem)
 
     def dumpRechnungenModel(self):
         model = self.__mainWindow.tblRechnungen.model()
@@ -366,6 +377,9 @@ class Controller():
             widget.setChecked(False)
         elif isinstance(widget, QComboBox):
             widget.setCurrentIndex(0)
+        elif isinstance(widget, QTableView):
+            model = widget.model()
+            model.clear()
         else:
             l = widget.children()
             for w in l:
@@ -449,17 +463,21 @@ class Controller():
         model = DictListTableModel(miete_data)
         win.tblMieten.setModel(model)
         #hide columns whg_id and miete_id:
-        win.tblMieten.setColumnWidth(0, 0)
-        win.tblMieten.setColumnWidth(1, 0)
+        win.tblMieten.setColumnHidden(0, True)
+        win.tblMieten.setColumnHidden(1, True)
 
     def __hausgeldData2Ui(self, hausgeld_data: List[Dict] ):
         win = self.__mainWindow
         model = DictListTableModel(hausgeld_data)
         win.tblHausgeld.setModel(model)
         #hide columns whg_id and miete_id:
-        win.tblHausgeld.setColumnWidth(0, 0)
-        win.tblHausgeld.setColumnWidth(1, 0)
-
+        win.tblHausgeld.setColumnHidden(0, True)
+        win.tblHausgeld.setColumnHidden(1, True)
+        #win.tblHausgeld.setColumnWidth(2, 100)
+        #win.tblHausgeld.setColumnWidth(3, 100)
+        win.tblHausgeld.setColumnWidth(4, 150)
+        win.tblHausgeld.setColumnWidth(5, 130)
+        win.tblHausgeld.setColumnWidth(6, 130)
 
     def __getSelectedWohnungIdentifikation(self) -> str:
         #whg = self.__getSelectedWohnungTreeItem()
