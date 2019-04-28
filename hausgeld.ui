@@ -189,7 +189,7 @@
   <widget class="QLabel" name="lblWohnung">
    <property name="geometry">
     <rect>
-     <x>8</x>
+     <x>5</x>
      <y>9</y>
      <width>291</width>
      <height>55</height>

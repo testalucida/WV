@@ -150,7 +150,13 @@ class DataProvider:
         return retval
 
     def updateHausgeld(self, hausgeld: dict):
-        pass
+        resp = self.__session. \
+            post('http://localhost/kendelweb/dev/php/business.php?q=update_hausgeld&user=' + self.__user,
+                 data=hausgeld)
+
+        retval = self.__getWriteRetValOrRaiseException(resp)
+
+        return retval
 
     def deleteHausgeld(self, hausgeld_id: str):
         d = {'hausgeld_id': hausgeld_id}

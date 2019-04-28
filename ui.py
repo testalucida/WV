@@ -205,6 +205,8 @@ class HausgeldDialog(WvDialog):
         val = QDoubleValidator(0, 9999, 2)
         self.inHausgeldAbschlag.setValidator(val)
         self.inDavonRuecklage.setValidator(val)
+        self.inHausgeldAbschlag.selectAll()
+        self.inHausgeldAbschlag.setFocus()
 
     def onDatumReset(self):
         senderName = self.sender().objectName()

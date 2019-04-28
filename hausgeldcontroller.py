@@ -43,7 +43,17 @@ class HausgeldController:
         return None
 
     def editHausgeld(self, whg_short: str, hausgeld: DictTableRow) -> None:
-        pass
+        self.__hausgeldDlg = HausgeldDialog(self)
+        dlg = self.__hausgeldDlg
+        dlg.setWohnungIdent(whg_short)
+        self.__bind(dlg, hausgeld)
+        dlg.setValidationCallback(self.validate)
+
+        self.__changes = None
+        if dlg.exec_() > 0:
+            self.__dataProvider.updateHausgeld(hausgeld.dictionary())
+            return hausgeld
+        return None
 
     def deleteHausgeld(self, hausgeld_id: str) -> None:
         self.__dataProvider.deleteHausgeld(hausgeld_id)
